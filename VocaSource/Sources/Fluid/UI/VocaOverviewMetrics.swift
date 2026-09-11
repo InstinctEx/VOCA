@@ -20,7 +20,7 @@ struct VocaOverviewMetrics: View {
             }
             HStack(spacing: 6) {
                 Image(systemName: "lock")
-                Text("From history saved on this Mac. Time saved is an estimate at \(self.settings.userTypingWPM) typing WPM and 150 speaking WPM.")
+                Text("Pace includes pauses and updates after each saved dictation. Time saved compares \(self.settings.userTypingWPM) typing WPM with recording and processing time. Older untimed entries use a 150 WPM estimate.")
             }.font(.caption).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
         }
     }
@@ -52,8 +52,8 @@ struct VocaOverviewMetrics: View {
         LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
             self.metric("Words dictated", value: self.history.totalWords.formatted(), symbol: "text.alignleft")
             self.metric("Dictations", value: self.history.entries.count.formatted(), symbol: "waveform")
-            self.metric("Words today", value: self.history.wordsToday.formatted(), symbol: "sun.max")
-            self.metric("Day streak", value: self.history.currentStreak.formatted(), symbol: "flame")
+            self.metric("Speaking pace · WPM", value: self.history.dictationMetrics.speakingWPM.map { String(Int($0.rounded())) } ?? "—", symbol: "speedometer")
+            self.metric("Time dictating", value: self.history.dictationMetrics.measuredSessions > 0 ? "\(Int(self.history.dictationMetrics.recordingSeconds / 60))m \(Int(self.history.dictationMetrics.recordingSeconds) % 60)s" : "—", symbol: "mic")
         }.frame(minWidth: 220)
     }
 

@@ -46,7 +46,7 @@ struct StatsView: View {
             Label("Time back in your day", systemImage: "clock").font(.callout.weight(.medium)).foregroundStyle(.secondary)
             Text(self.historyStore.formattedTimeSaved(typingWPM: self.settings.userTypingWPM))
                 .font(.system(size: 44, weight: .semibold)).monospacedDigit().contentTransition(.numericText())
-            Text("Estimated time saved across all your dictations.").font(.callout).foregroundStyle(.secondary)
+            Text("Estimated typing time minus recording and processing time. Older untimed entries use 150 speaking WPM.").font(.callout).foregroundStyle(.secondary)
             Divider()
             ViewThatFits(in: .horizontal) {
                 HStack { self.trendLabel; Spacer(); self.typingSpeedButton }

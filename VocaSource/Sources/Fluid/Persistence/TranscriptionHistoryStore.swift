@@ -37,6 +37,7 @@ struct TranscriptionHistoryEntry: Codable, Identifiable, Equatable, Sendable {
     /// back to typing the raw transcription. The string carries the error
     /// message for display / debugging.
     let aiProcessingError: String?
+    let recordingDurationMilliseconds: Int?
     let audio: DictationAudioMetadata?
 
     init(
@@ -52,6 +53,7 @@ struct TranscriptionHistoryEntry: Codable, Identifiable, Equatable, Sendable {
         aiProcessingDurationMilliseconds: Int? = nil,
         aiTokensPerSecond: Double? = nil,
         aiProcessingError: String? = nil,
+        recordingDurationMilliseconds: Int? = nil,
         audio: DictationAudioMetadata? = nil
     ) {
         self.id = id
@@ -67,6 +69,7 @@ struct TranscriptionHistoryEntry: Codable, Identifiable, Equatable, Sendable {
         self.aiProcessingDurationMilliseconds = aiProcessingDurationMilliseconds
         self.aiTokensPerSecond = aiTokensPerSecond
         self.aiProcessingError = aiProcessingError
+        self.recordingDurationMilliseconds = recordingDurationMilliseconds
         self.audio = audio
     }
 
@@ -84,6 +87,7 @@ struct TranscriptionHistoryEntry: Codable, Identifiable, Equatable, Sendable {
         aiProcessingDurationMilliseconds: Int?,
         aiTokensPerSecond: Double?,
         aiProcessingError: String?,
+        recordingDurationMilliseconds: Int?,
         audio: DictationAudioMetadata?
     ) {
         self.id = id
@@ -99,6 +103,7 @@ struct TranscriptionHistoryEntry: Codable, Identifiable, Equatable, Sendable {
         self.aiProcessingDurationMilliseconds = aiProcessingDurationMilliseconds
         self.aiTokensPerSecond = aiTokensPerSecond
         self.aiProcessingError = aiProcessingError
+        self.recordingDurationMilliseconds = recordingDurationMilliseconds
         self.audio = audio
     }
 
@@ -123,6 +128,7 @@ struct TranscriptionHistoryEntry: Codable, Identifiable, Equatable, Sendable {
         )
         self.aiTokensPerSecond = try container.decodeIfPresent(Double.self, forKey: .aiTokensPerSecond)
         self.aiProcessingError = try container.decodeIfPresent(String.self, forKey: .aiProcessingError)
+        self.recordingDurationMilliseconds = try container.decodeIfPresent(Int.self, forKey: .recordingDurationMilliseconds)
         self.audio = try container.decodeIfPresent(DictationAudioMetadata.self, forKey: .audio)
     }
 
@@ -131,7 +137,7 @@ struct TranscriptionHistoryEntry: Codable, Identifiable, Equatable, Sendable {
         case characterCount, wasAIProcessed, processingModel
         case transcriptionDurationMilliseconds, aiProcessingDurationMilliseconds
         case aiTokensPerSecond
-        case aiProcessingError, audio
+        case aiProcessingError, audio, recordingDurationMilliseconds
     }
 
     /// Preview text for list display (first 80 chars)
@@ -198,6 +204,7 @@ struct TranscriptionHistoryEntry: Codable, Identifiable, Equatable, Sendable {
             aiProcessingDurationMilliseconds: self.aiProcessingDurationMilliseconds,
             aiTokensPerSecond: self.aiTokensPerSecond,
             aiProcessingError: self.aiProcessingError,
+            recordingDurationMilliseconds: self.recordingDurationMilliseconds ?? self.audio?.durationMilliseconds,
             audio: audio
         )
     }
@@ -277,6 +284,7 @@ final class TranscriptionHistoryStore: ObservableObject {
         aiProcessingDurationMilliseconds: Int? = nil,
         aiTokensPerSecond: Double? = nil,
         aiProcessingError: String? = nil,
+        recordingDurationMilliseconds: Int? = nil,
         audio: DictationAudioMetadata? = nil
     ) {
         // Skip empty transcriptions
@@ -295,6 +303,7 @@ final class TranscriptionHistoryStore: ObservableObject {
             aiProcessingDurationMilliseconds: aiProcessingDurationMilliseconds,
             aiTokensPerSecond: aiTokensPerSecond,
             aiProcessingError: aiProcessingError,
+            recordingDurationMilliseconds: recordingDurationMilliseconds,
             audio: audio
         )
 
@@ -669,7 +678,7 @@ final class TranscriptionHistoryStore: ObservableObject {
             result.words += Self.countWords(in: entry.processedText)
             result.transcriptions += 1
         }
-        return TodaySummary(words: totals.words, transcriptions: totals.transcriptions)
+        return TodaySummary(words: totals.words, transcriptions: totals.transcriptions, measured: VocaDictationMetrics(entries: entries.filter { $0.timestamp >= day.start && $0.timestamp < day.end }))
     }
 }
 
@@ -679,8 +688,10 @@ extension TranscriptionHistoryStore {
     nonisolated struct TodaySummary: Equatable, Sendable {
         let words: Int
         let transcriptions: Int
+        var measured: VocaDictationMetrics? = nil
 
         func timeSavedMinutes(typingWPM: Int = 40, speakingWPM: Int = 150) -> Double {
+            if let measured { return measured.timeSavedMinutes(typingWPM: typingWPM, fallbackSpeakingWPM: speakingWPM) }
             guard typingWPM > 0 && speakingWPM > 0 else { return 0 }
 
             let words = Double(self.words)
@@ -693,7 +704,9 @@ extension TranscriptionHistoryStore {
         func formattedTimeSaved(typingWPM: Int = 40) -> String {
             let minutes = self.timeSavedMinutes(typingWPM: typingWPM)
 
-            if minutes < 1 {
+            if minutes <= 0 {
+                return "0m"
+            } else if minutes < 1 {
                 return "< 1m"
             } else if minutes < 60 {
                 return "\(Int(minutes))m"
@@ -745,6 +758,8 @@ extension TranscriptionHistoryStore {
         return self.totalWords / self.entries.count
     }
 
+    var dictationMetrics: VocaDictationMetrics { VocaDictationMetrics(entries: self.entries) }
+
     // MARK: - Time Saved Calculation
 
     /// Calculate time saved in minutes
@@ -752,20 +767,16 @@ extension TranscriptionHistoryStore {
     ///   - typingWPM: User's typing speed (default 40)
     ///   - speakingWPM: Average speaking speed (default 150)
     func timeSavedMinutes(typingWPM: Int = 40, speakingWPM: Int = 150) -> Double {
-        guard typingWPM > 0 && speakingWPM > 0 else { return 0 }
-
-        let words = Double(totalWords)
-        let typingTime = words / Double(typingWPM) // minutes to type
-        let speakingTime = words / Double(speakingWPM) // minutes to speak
-
-        return max(0, typingTime - speakingTime)
+        self.dictationMetrics.timeSavedMinutes(typingWPM: typingWPM, fallbackSpeakingWPM: speakingWPM)
     }
 
     /// Formatted time saved string (e.g., "2h 45m" or "45m")
     func formattedTimeSaved(typingWPM: Int = 40) -> String {
         let minutes = self.timeSavedMinutes(typingWPM: typingWPM)
 
-        if minutes < 1 {
+        if minutes <= 0 {
+            return "0m"
+        } else if minutes < 1 {
             return "< 1m"
         } else if minutes < 60 {
             return "\(Int(minutes))m"
@@ -1141,5 +1152,40 @@ extension TranscriptionHistoryStore {
     /// Total possible milestones
     var totalMilestonesPossible: Int {
         self.wordMilestones.count + self.transcriptionMilestones.count + self.streakMilestones.count
+    }
+}
+
+
+/// Timing survives audio deletion and uses raw words for speaking pace, final words for typing effort.
+struct VocaDictationMetrics: Equatable, Sendable {
+    var words = 0
+    var measuredRawWords = 0
+    var recordingSeconds = 0.0
+    var processingSeconds = 0.0
+    var unmeasuredWords = 0
+    var measuredSessions = 0
+
+    init(entries: [TranscriptionHistoryEntry]) {
+        for entry in entries {
+            let count = entry.processedText.split(whereSeparator: \.isWhitespace).count
+            words += count
+            if let ms = entry.recordingDurationMilliseconds ?? entry.audio?.durationMilliseconds, ms > 0 {
+                recordingSeconds += Double(ms) / 1000
+                measuredRawWords += entry.rawText.split(whereSeparator: \.isWhitespace).count
+                measuredSessions += 1
+            } else { unmeasuredWords += count }
+            processingSeconds += Double(max(0, entry.transcriptionDurationMilliseconds ?? 0)) / 1000
+            processingSeconds += Double(max(0, entry.aiProcessingDurationMilliseconds ?? 0)) / 1000
+        }
+    }
+
+    var speakingWPM: Double? {
+        guard recordingSeconds > 0, measuredRawWords > 0 else { return nil }
+        return Double(measuredRawWords) * 60 / recordingSeconds
+    }
+
+    func timeSavedMinutes(typingWPM: Int, fallbackSpeakingWPM: Int = 150) -> Double {
+        guard typingWPM > 0, fallbackSpeakingWPM > 0 else { return 0 }
+        return max(0, Double(words) / Double(typingWPM) - (recordingSeconds + processingSeconds) / 60 - Double(unmeasuredWords) / Double(fallbackSpeakingWPM))
     }
 }

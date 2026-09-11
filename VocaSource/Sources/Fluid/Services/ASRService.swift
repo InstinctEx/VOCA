@@ -1429,6 +1429,11 @@ final class ASRService: ObservableObject {
     // Thread-safe buffer to prevent "Array mutation while enumerating" and memory corruption crashes
     // during long sessions where reallocation occurs frequently.
     private let audioBuffer = ThreadSafeAudioBuffer()
+    private var lastCompletedRecordingDurationMilliseconds: Int?
+    func consumeLastRecordingDurationMilliseconds() -> Int? {
+        defer { self.lastCompletedRecordingDurationMilliseconds = nil }
+        return self.lastCompletedRecordingDurationMilliseconds
+    }
     private var lastCompletedAudioSnapshot: DictationAudioSnapshot?
 
     // Streaming transcription state (no VAD)
@@ -2715,6 +2720,7 @@ final class ASRService: ObservableObject {
             self.lastDictionaryTrainingResult = nil
         }
         self.lastCompletedAudioSnapshot = nil
+        self.lastCompletedRecordingDurationMilliseconds = nil
         let stopStartedAt = Date().timeIntervalSince1970
         self.benchmarkLog("stop_start ageMs=\(self.elapsedMilliseconds(since: self.benchmarkRecordingStartedAt)) bufferedSamples=\(self.audioBuffer.count)")
 
@@ -3027,6 +3033,9 @@ final class ASRService: ObservableObject {
             }
             DebugLogger.shared.debug("After post-processing: '\(outputText)'", source: "ASRService")
             self.benchmarkLog("stop_end result=success totalMs=\(self.elapsedMilliseconds(since: stopStartedAt)) recordingAgeMs=\(self.elapsedMilliseconds(since: self.benchmarkRecordingStartedAt)) cleanedChars=\(outputText.count)")
+            if !useDictionaryTrainingPath, !capturedPCM.isEmpty {
+                self.lastCompletedRecordingDurationMilliseconds = Int((Double(capturedPCM.count) / 16_000 * 1000).rounded())
+            }
             if !useDictionaryTrainingPath,
                SettingsStore.shared.saveTranscriptionHistory,
                SettingsStore.shared.saveAudioWithTranscriptionHistory,

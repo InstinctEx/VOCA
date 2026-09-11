@@ -2719,6 +2719,7 @@ struct ContentView: View {
         )
         self.appBench("asr_stop_return elapsedMs=\(Int(((ProcessInfo.processInfo.systemUptime - asrStopStartedAt) * 1000).rounded()))")
         let audioSnapshot = self.asr.consumeLastCompletedAudioSnapshot()
+        let recordingDurationMilliseconds = self.asr.consumeLastRecordingDurationMilliseconds()
         let transcriptionDurationMilliseconds = self.asr.consumeLastFinalTranscriptionDurationMs()
         DebugLogger.shared.info(
             "Stop transcription result | chars=\(transcribedText.count) | empty=\(transcribedText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)",
@@ -2980,7 +2981,8 @@ struct ContentView: View {
                 transcriptionDurationMilliseconds: transcriptionDurationMilliseconds,
                 aiProcessingDurationMilliseconds: aiProcessingDurationMilliseconds,
                 aiTokensPerSecond: aiTokensPerSecond,
-                aiProcessingError: aiFallbackReason
+                aiProcessingError: aiFallbackReason,
+                recordingDurationMilliseconds: recordingDurationMilliseconds
             )
             self.persistDictationAudioIfNeeded(
                 audioSnapshot,

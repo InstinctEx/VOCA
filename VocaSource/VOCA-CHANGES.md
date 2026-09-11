@@ -88,3 +88,9 @@ Built-in Apple Silicon enhancement using Qwen3-4B-Instruct-2507 (4-bit) and MLX 
 - Added a conservative local-cleanup check for removal of Greek or Latin text spans.
 - Cursor pill prefers above-right, then above-left/below/side positions as space permits. Failed caret reads discard the old anchor, use the field perimeter, or fall back to the display's upper-right edge.
 - Added English/Greek synthetic inference checks and screen-edge placement regressions.
+
+## Measured speaking pace
+- Overview shows duration-weighted speaking WPM and total recording time, updating after saved dictations.
+- Speaking pace counts raw transcript words and includes pauses; AI-expanded text cannot inflate it.
+- Saved-time estimates across Overview, Usage, and today's stats subtract measured recording and known transcription/cleanup time from the user's typing baseline.
+- Timing persists independently of audio storage. Legacy untimed history remains readable and uses an explicitly labeled 150 WPM fallback; no measured pace is invented for it.

@@ -5,6 +5,32 @@ import XCTest
 
 @MainActor
 final class VocaInterfaceTests: XCTestCase {
+    func testMeasuredSpeakingPaceUsesWeightedRawWordsAndActualTime() throws {
+        func entry(words: Int, finalWords: Int, ms: Int?, processing: Int = 0) -> TranscriptionHistoryEntry {
+            .init(rawText: String(repeating: "word ", count: words), processedText: String(repeating: "word ", count: finalWords), appName: "Test", windowTitle: "", wasAIProcessed: true, aiProcessingDurationMilliseconds: processing, recordingDurationMilliseconds: ms)
+        }
+        let first = entry(words: 100, finalWords: 80, ms: 60_000, processing: 6000)
+        let second = entry(words: 60, finalWords: 60, ms: 30_000)
+        let metrics = VocaDictationMetrics(entries: [first, second])
+        XCTAssertEqual(try XCTUnwrap(metrics.speakingWPM), 160.0 / 1.5, accuracy: 0.001)
+        XCTAssertEqual(metrics.timeSavedMinutes(typingWPM: 40), 1.9, accuracy: 0.001)
+        let legacy = entry(words: 30, finalWords: 30, ms: nil)
+        let mixed = VocaDictationMetrics(entries: [first, legacy])
+        XCTAssertEqual(mixed.unmeasuredWords, 30)
+        XCTAssertEqual(mixed.timeSavedMinutes(typingWPM: 40), 1.45, accuracy: 0.001)
+        XCTAssertNil(VocaDictationMetrics(entries: []).speakingWPM)
+        XCTAssertEqual(metrics.timeSavedMinutes(typingWPM: 0), 0)
+        XCTAssertEqual(VocaDictationMetrics(entries: [entry(words: 1, finalWords: 1, ms: 60_000)]).timeSavedMinutes(typingWPM: 40), 0)
+        let decoded = try JSONDecoder().decode(TranscriptionHistoryEntry.self, from: JSONEncoder().encode(first))
+        XCTAssertEqual(decoded.recordingDurationMilliseconds, 60_000)
+        XCTAssertNil(decoded.audio) // Timing does not require storing microphone audio.
+        XCTAssertEqual(decoded.replacingAudio(nil).recordingDurationMilliseconds, 60_000)
+        var json = try XCTUnwrap(JSONSerialization.jsonObject(with: JSONEncoder().encode(first)) as? [String: Any])
+        json.removeValue(forKey: "recordingDurationMilliseconds")
+        let old = try JSONDecoder().decode(TranscriptionHistoryEntry.self, from: JSONSerialization.data(withJSONObject: json))
+        XCTAssertNil(old.recordingDurationMilliseconds)
+    }
+
     func testPolishRejectsChangedNumbersAndTruncatedAnswers() throws {
         XCTAssertEqual(try VocaPolishPrompt.validate("Meet at 3 pm.", input: "meet at 3 pm", hitLimit: false), "Meet at 3 pm.")
         XCTAssertThrowsError(try VocaPolishPrompt.validate("Meet at 4 pm.", input: "meet at 3 pm", hitLimit: false))
