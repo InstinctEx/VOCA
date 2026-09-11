@@ -42,6 +42,17 @@ nonisolated enum VocaPolishPrompt {
             regex.matches(in: value, range: NSRange(value.startIndex..., in: value)).compactMap { Range($0.range, in: value).map { String(value[$0]) } }.sorted()
         }
         guard numbers(input) == numbers(text) else { throw VocaPolishError.message("Cleanup changed a number. Keeping your original words is safer.") }
+        // Detect losing an entire Greek/Latin span. Not a guarantee of semantic accuracy.
+        func letters(_ value: String, pattern: String) -> Int {
+            value.unicodeScalars.filter { scalar in
+                CharacterSet.letters.contains(scalar) && String(scalar).range(of: pattern, options: .regularExpression) != nil
+            }.count
+        }
+        for script in [#"\p{Greek}"#, #"\p{Latin}"#] {
+            if letters(input, pattern: script) >= 4 && letters(text, pattern: script) == 0 {
+                throw VocaPolishError.message("Cleanup removed a language. Your original words are available.")
+            }
+        }
         return text
     }
 }

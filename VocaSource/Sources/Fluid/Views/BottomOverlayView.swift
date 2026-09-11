@@ -50,6 +50,7 @@ final class BottomOverlayWindowController {
     private var globalMouseDownMonitor: Any?
     private var targetScreen: NSScreen?
     private var caretAnchor: NSRect?
+    private var caretField: NSRect?
     private var caretTarget: TypingService.CapturedFocusTarget?
     private var caretTrackingTimer: Timer?
     private var releaseTransitionActiveUntil: Date?
@@ -143,6 +144,7 @@ final class BottomOverlayWindowController {
 
         self.caretTarget = SettingsStore.shared.overlayPosition == .caret ? TypingService.captureSystemFocusTarget() : nil
         self.caretAnchor = self.caretTarget.flatMap { VocaDestination.caretRect(for: $0) }
+        self.caretField = self.caretTarget.flatMap { VocaDestination.fieldRect(for: $0) }
         self.caretTrackingTimer?.invalidate()
         if self.caretTarget != nil {
             self.caretTrackingTimer = Timer.scheduledTimer(withTimeInterval: 0.4, repeats: true) { [weak self] timer in
@@ -151,14 +153,18 @@ final class BottomOverlayWindowController {
                         timer.invalidate()
                         return
                     }
-                    guard let target = self.caretTarget, let rect = VocaDestination.caretRect(for: target) else { return }
-                    self.caretAnchor = rect
-                    self.targetScreen = NSScreen.screens.first(where: { $0.frame.intersects(rect) }) ?? self.targetScreen
+                    guard let target = self.caretTarget else { return }
+                    // A failed read must not leave yesterday's caret floating over today's text.
+                    self.caretAnchor = VocaDestination.caretRect(for: target)
+                    self.caretField = VocaDestination.fieldRect(for: target)
+                    if let rect = self.caretAnchor ?? self.caretField {
+                        self.targetScreen = NSScreen.screens.first(where: { $0.frame.intersects(rect) }) ?? self.targetScreen
+                    }
                     self.positionWindow()
                 }
             }
         }
-        self.targetScreen = self.caretAnchor.flatMap { rect in NSScreen.screens.first(where: { $0.frame.intersects(rect) }) }
+        self.targetScreen = (self.caretAnchor ?? self.caretField).flatMap { rect in NSScreen.screens.first(where: { $0.frame.intersects(rect) }) }
             ?? OverlayScreenResolver.screenForCurrentPointer()
         self.positionWindow()
 
@@ -558,8 +564,14 @@ final class BottomOverlayWindowController {
         let fullFrame = screen.frame
         let visibleFrame = screen.visibleFrame
         let windowSize = window.frame.size
-        if SettingsStore.shared.overlayPosition == .caret, let caretAnchor {
-            window.setFrameOrigin(VocaDestination.pillFrame(caret: caretAnchor, size: windowSize, visible: visibleFrame).origin)
+        if SettingsStore.shared.overlayPosition == .caret {
+            if let anchor = caretAnchor ?? caretField {
+                window.setFrameOrigin(VocaDestination.pillFrame(caret: anchor, size: windowSize, visible: visibleFrame).origin)
+            } else {
+                // No accessible caret or field: stay at the display's upper edge, away from its center.
+                window.setFrameOrigin(NSPoint(x: max(visibleFrame.minX, visibleFrame.maxX - windowSize.width - 12),
+                                              y: max(visibleFrame.minY, visibleFrame.maxY - windowSize.height - 12)))
+            }
             return
         }
 

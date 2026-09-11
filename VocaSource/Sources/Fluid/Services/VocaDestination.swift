@@ -72,12 +72,29 @@ enum VocaDestination {
         return NSRect(x: rect.minX, y: primary.frame.maxY - rect.maxY, width: max(1, rect.width), height: rect.height)
     }
 
+    /// When an editor does not expose a caret, use its perimeter, never its center.
+    @MainActor static func fieldRect(for target: TypingService.CapturedFocusTarget) -> CGRect? {
+        guard !target.isSecureTextField, let primary = NSScreen.screens.first,
+              let position = attribute(target.element, kAXPositionAttribute),
+              let size = attribute(target.element, kAXSizeAttribute),
+              CFGetTypeID(position) == AXValueGetTypeID(), CFGetTypeID(size) == AXValueGetTypeID() else { return nil }
+        var origin = CGPoint.zero
+        var extent = CGSize.zero
+        guard AXValueGetValue(unsafeBitCast(position, to: AXValue.self), .cgPoint, &origin),
+              AXValueGetValue(unsafeBitCast(size, to: AXValue.self), .cgSize, &extent),
+              origin.x.isFinite, origin.y.isFinite, extent.width.isFinite, extent.height.isFinite,
+              extent.width > 0, extent.height > 0 else { return nil }
+        return CGRect(x: origin.x, y: primary.frame.maxY - origin.y - extent.height, width: extent.width, height: extent.height)
+    }
+
     static func pillFrame(caret: CGRect, size: CGSize, visible: CGRect) -> CGRect {
         let safe = visible.insetBy(dx: 12, dy: 12)
         let gap: CGFloat = 12
         let candidates = [
-            CGRect(x: caret.midX - size.width / 2, y: caret.maxY + gap, width: size.width, height: size.height),
-            CGRect(x: caret.midX - size.width / 2, y: caret.minY - gap - size.height, width: size.width, height: size.height),
+            CGRect(x: caret.maxX + gap, y: caret.maxY + gap, width: size.width, height: size.height),
+            CGRect(x: caret.minX - gap - size.width, y: caret.maxY + gap, width: size.width, height: size.height),
+            CGRect(x: caret.maxX + gap, y: caret.minY - gap - size.height, width: size.width, height: size.height),
+            CGRect(x: caret.minX - gap - size.width, y: caret.minY - gap - size.height, width: size.width, height: size.height),
             CGRect(x: caret.maxX + gap, y: caret.midY - size.height / 2, width: size.width, height: size.height),
             CGRect(x: caret.minX - gap - size.width, y: caret.midY - size.height / 2, width: size.width, height: size.height),
         ]

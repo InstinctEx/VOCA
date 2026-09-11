@@ -82,3 +82,9 @@ Built-in Apple Silicon enhancement using Qwen3-4B-Instruct-2507 (4-bit) and MLX 
 - Made disclosure labels full-row keyboard-accessible buttons throughout the app and Settings.
 - Removed the top scroll-edge overlay and automatic Settings inset adjustment; clipped detail content to its viewport.
 - Added descriptive Settings navigation and direct setup/help actions.
+
+## Language transitions and cursor placement
+- Added switch-at-pauses decoding for Parakeet v3, enabled by default with a Speech Models toggle. Sustained quiet splits phrases; uninterrupted language changes remain a model limitation.
+- Added a conservative local-cleanup check for removal of Greek or Latin text spans.
+- Cursor pill prefers above-right, then above-left/below/side positions as space permits. Failed caret reads discard the old anchor, use the field perimeter, or fall back to the display's upper-right edge.
+- Added English/Greek synthetic inference checks and screen-edge placement regressions.

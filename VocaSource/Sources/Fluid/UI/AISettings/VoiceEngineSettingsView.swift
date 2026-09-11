@@ -8,6 +8,7 @@ struct VoiceEngineSettingsView: View {
     @State var isShowingWhisperLanguagePicker = false
     @State var whisperLanguageSearchText = ""
     @State var modelSearch = ""
+    @AppStorage("voca.multilingualPauses") var multilingualPauses = true
     @State var modelLibraryScope = "All models"
     @State var showModelDetails = false
     let theme: AppTheme

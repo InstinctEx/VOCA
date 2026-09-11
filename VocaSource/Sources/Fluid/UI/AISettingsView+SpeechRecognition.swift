@@ -27,6 +27,16 @@ extension VoiceEngineSettingsView {
                     Label(self.viewModel.asr.isAsrReady ? "Ready" : "Selected", systemImage: self.viewModel.asr.isAsrReady ? "checkmark.circle.fill" : "circle")
                         .font(.callout).foregroundStyle(.secondary)
                 }.padding(18).vocaContentSurface()
+                if self.settings.selectedSpeechModel == .parakeetTDT {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Toggle("Switch languages at pauses", isOn: self.$multilingualPauses)
+                            .font(.headline).toggleStyle(.switch)
+                        Text("Speak a phrase, pause briefly, then switch languages. VOCA decodes each phrase separately so one language is less likely to replace another.")
+                            .font(.callout).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
+                        Text("Parakeet can still struggle when languages change without a pause. This improves phrase transitions; it does not retrain the model.")
+                            .font(.caption).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
+                    }.padding(18).vocaContentSurface()
+                }
                 VStack(alignment: .leading, spacing: 16) {
                     HStack {
                         VocaSectionHeading(title: "Voice library", detail: "\(models.count) available")

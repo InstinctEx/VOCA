@@ -13,6 +13,60 @@ final class VocaInterfaceTests: XCTestCase {
         XCTAssertThrowsError(try VocaPolishPrompt.validate("", input: "hello", hitLimit: false))
     }
 
+    func testSpeechPauseSplitsAtQuietAndKeepsEverySample() {
+        let phrase = [Float](repeating: 0.1, count: 32_000)
+        let samples = phrase + [Float](repeating: 0, count: 8_000) + phrase
+        let ranges = VocaSpeechPauses.ranges(in: samples)
+        XCTAssertEqual(ranges.count, 2)
+        XCTAssertEqual(ranges.flatMap { Array(samples[$0]) }, samples)
+        XCTAssertEqual(VocaSpeechPauses.ranges(in: phrase).count, 1)
+        XCTAssertEqual(VocaSpeechPauses.ranges(in: [Float](repeating: 0, count: 80_000)).count, 1)
+        XCTAssertEqual(VocaSpeechPauses.ranges(in: phrase + [Float](repeating: 0, count: 1_600) + phrase).count, 1)
+    }
+
+    func testMixedLanguageCleanupDoesNotTranslateEitherSpan() throws {
+        let input = "this is a test in english αυτο ειναι ενα τεστ στα ελληνικα"
+        XCTAssertThrowsError(try VocaPolishPrompt.validate("This is a test in English. This is a test in Greek.", input: input, hitLimit: false))
+        XCTAssertEqual(try VocaPolishPrompt.validate("This is a test in English. Αυτό είναι ένα τεστ στα ελληνικά.", input: input, hitLimit: false), "This is a test in English. Αυτό είναι ένα τεστ στα ελληνικά.")
+    }
+
+    func testMixedLanguageRealStagesWhenEnabled() async throws {
+        guard ProcessInfo.processInfo.environment["VOCA_TEST_MIXED"] == "1" else { throw XCTSkip("Opt-in synthetic bilingual audio") }
+        let input = "this is a test in english αυτο ειναι ενα τεστ στα ελληνικα"
+        let clean = try await VocaPolishEngine.shared.generate(input, style: VocaPolishPrompt.defaultStyle)
+        print("MIXED_CLEANUP: \(clean.outputText)")
+        XCTAssertTrue(clean.outputText.lowercased().contains("english"))
+        XCTAssertTrue(clean.outputText.lowercased().contains("ελλην"))
+        await VocaPolishEngine.shared.unload()
+        let stored = UserDefaults.standard.object(forKey: "voca.multilingualPauses")
+        UserDefaults.standard.set(true, forKey: "voca.multilingualPauses")
+        defer {
+            if let stored { UserDefaults.standard.set(stored, forKey: "voca.multilingualPauses") }
+            else { UserDefaults.standard.removeObject(forKey: "voca.multilingualPauses") }
+        }
+        let provider = FluidAudioProvider(modelOverride: .parakeetTDT, configureWordBoosting: false)
+        try await provider.prepare()
+        var samples: [Float] = []
+        for name in ["voca-test-en", "voca-test-el"] {
+            let reader = try LocalAPIAudioDecoder.ChunkReader(fileURL: URL(fileURLWithPath: "/tmp/\(name).aiff"))
+            let phrase = try await reader.nextSamples()
+            let single = try await provider.transcribeFinal(phrase)
+            print("MIXED_SINGLE_\(name): \(single.text)")
+            if !samples.isEmpty { samples += [Float](repeating: 0, count: 8_000) }
+            samples += phrase
+        }
+        print("MIXED_PAUSE_RANGES: \(VocaSpeechPauses.ranges(in: samples))")
+        let raw = try await provider.transcribeFinal(samples)
+        print("MIXED_RAW_ASR: \(raw.text)")
+        XCTAssertTrue(raw.text.lowercased().contains("english"))
+        XCTAssertTrue(raw.text.lowercased().contains("ελλην"))
+        let polished = try await VocaPolishEngine.shared.generate(raw.text, style: VocaPolishPrompt.defaultStyle)
+        print("MIXED_FINAL: \(polished.outputText)")
+        XCTAssertTrue(polished.outputText.lowercased().contains("english"))
+        XCTAssertTrue(polished.outputText.lowercased().contains("ελλην"))
+        await VocaPolishEngine.shared.unload()
+    }
+
     func testPolishResumeRequiresExactRangeAndAllowsCleanRestart() {
         XCTAssertTrue(VocaPolishTransfer.acceptsResponse(status: 206, range: "bytes 100-200/201", offset: 100))
         XCTAssertFalse(VocaPolishTransfer.acceptsResponse(status: 206, range: "bytes 0-200/201", offset: 100))
@@ -182,7 +236,20 @@ final class VocaInterfaceTests: XCTestCase {
         let caret = CGRect(x: 450, y: 350, width: 1, height: 20)
         let frame = VocaDestination.pillFrame(caret: caret, size: CGSize(width: 200, height: 80), visible: CGRect(x: 0, y: 0, width: 1000, height: 800))
         XCTAssertGreaterThan(frame.minY, caret.maxY)
+        XCTAssertGreaterThan(frame.minX, caret.maxX)
         XCTAssertFalse(frame.intersects(caret))
+    }
+
+    func testPillUsesAboveLeftAtRightEdgeAndTracksNewCaret() {
+        let screen = CGRect(x: 0, y: 0, width: 1000, height: 800)
+        let size = CGSize(width: 200, height: 80)
+        let caret = CGRect(x: 970, y: 350, width: 1, height: 20)
+        let frame = VocaDestination.pillFrame(caret: caret, size: size, visible: screen)
+        XCTAssertLessThan(frame.maxX, caret.minX)
+        XCTAssertGreaterThan(frame.minY, caret.maxY)
+        XCTAssertTrue(screen.contains(frame))
+        let moved = VocaDestination.pillFrame(caret: CGRect(x: 100, y: 100, width: 1, height: 20), size: size, visible: screen)
+        XCTAssertNotEqual(frame, moved)
     }
 
     func testPillMovesBelowAtTheTopEdge() {

@@ -2,6 +2,37 @@ import Foundation
 #if arch(arm64)
 import FluidAudio
 
+/// Split only at sustained quiet, never at an arbitrary word boundary. Samples are 16 kHz mono.
+enum VocaSpeechPauses {
+    static func ranges(in samples: [Float]) -> [Range<Int>] {
+        let frame = 320
+        guard samples.count >= 32_000 else { return [0..<samples.count] }
+        var levels: [Float] = []
+        for start in stride(from: 0, to: samples.count, by: frame) {
+            let end = min(start + frame, samples.count)
+            levels.append(sqrt(samples[start..<end].reduce(Float(0)) { $0 + $1 * $1 } / Float(end - start)))
+        }
+        let threshold = min(Float(0.003), max(Float(0.0003), (levels.max() ?? 0) * 0.025))
+        var result: [Range<Int>] = []
+        var start = 0
+        var quietStart: Int?
+        for (index, level) in levels.enumerated() {
+            if level < threshold {
+                if quietStart == nil { quietStart = index }
+            } else if let quiet = quietStart {
+                let cut = (quiet + index) / 2 * frame
+                if index - quiet >= 16, cut - start >= 16_000, samples.count - cut >= 16_000, result.count < 24 {
+                    result.append(start..<cut)
+                    start = cut
+                }
+                quietStart = nil
+            }
+        }
+        result.append(start..<samples.count)
+        return result
+    }
+}
+
 /// TranscriptionProvider implementation using FluidAudio (optimized for Apple Silicon)
 /// This wraps the existing FluidAudio-based ASR for use on Apple Silicon Macs.
 final class FluidAudioProvider: TranscriptionProvider {
@@ -365,6 +396,21 @@ final class FluidAudioProvider: TranscriptionProvider {
                 code: -1,
                 userInfo: [NSLocalizedDescriptionKey: "ASR manager not initialized"]
             )
+        }
+
+        // Independent decoding at real pauses avoids carrying one language across the next phrase.
+        if (self.modelOverride ?? SettingsStore.shared.selectedSpeechModel) == .parakeetTDT,
+           UserDefaults.standard.object(forKey: "voca.multilingualPauses") as? Bool ?? true {
+            let ranges = VocaSpeechPauses.ranges(in: samples)
+            if ranges.count > 1 {
+                var results: [ASRTranscriptionResult] = []
+                for range in ranges {
+                    try Task.checkCancellation()
+                    // Base manager avoids language-specific dictionary rescoring across languages.
+                    results.append(try await self.transcribeFinalResult(Array(samples[range]), manager: self.streamingAsrManager ?? manager))
+                }
+                return ASRTranscriptionResult(text: results.map(\.text).filter { !$0.isEmpty }.joined(separator: " "), confidence: results.map(\.confidence).min() ?? 0)
+            }
         }
 
         if SettingsStore.shared.experimentalParakeetUnifiedFinalEnabled,
