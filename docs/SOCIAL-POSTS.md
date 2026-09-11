@@ -1,6 +1,6 @@
 # VOCA launch drafts
 
-Prepared September 12, 2026. Drafts only—not posted. The repository is currently private, public downloads and checkout are not live, and the beta is not Apple-notarized. Do not attach the private GitHub link as a public download. Add a verified public demo link if available, and check the community's current self-promotion rules before posting.
+Prepared September 12, 2026. Drafts only—not posted. Source is public at https://github.com/InstinctEx/VOCA. Prebuilt checkout is not live, and the beta is not Apple-notarized. Share the repository as free-to-build source, not a ready-made app download. Add a verified public demo link if available, and check the community's current self-promotion rules before posting.
 
 ## r/macapps
 

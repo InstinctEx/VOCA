@@ -21,3 +21,8 @@ test('preview server serves public files but not repository or private files', a
     for(const file of ['/.git/config','/.env','/VocaSource/Info.plist','/assets/%2e%2e/%2e%2e/.git/config']) assert.equal((await fetch(`http://127.0.0.1:${port}${file}`)).status,404);
   } finally {child.kill();}
 });
+
+test('hosted checkout delivers files without a public binary URL',()=>assert.deepEqual(releaseProblems({...ready,deliveryMode:'hosted-checkout',downloadUrl:''}),[]));
+test('direct downloads still require a real binary URL',()=>assert.ok(releaseProblems({...ready,deliveryMode:'direct-download',downloadUrl:''}).length));
+test('hosted checkout still requires source and seller details',()=>{for(const key of ['sourceUrl','termsUrl','sellerName','supportEmail','checkoutUrl']) assert.ok(releaseProblems({...ready,deliveryMode:'hosted-checkout',downloadUrl:'',[key]:''}).length)});
+test('unknown delivery mode cannot enable purchases',()=>assert.ok(releaseProblems({...ready,deliveryMode:'unknown'}).length));

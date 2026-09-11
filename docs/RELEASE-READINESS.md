@@ -23,7 +23,7 @@ App: 418 selected tests, 414 passed, four opt-in real-model/audio tests skipped,
 | Item | Remaining work |
 | --- | --- |
 | Seller and checkout | Owner chooses provider and supplies public seller name, owned support email, terms/refund policy, real checkout link. Real purchase, receipt and refund tests require that account. |
-| Hosting and source delivery | Upload the binary and corresponding source together to accessible hosting; verify downloads. Private GitHub is not accessible source delivery for customers. Do not publish the repository merely because open sourcing was discussed. |
+| Hosting and source delivery | Upload the binary and corresponding source together to accessible hosting; verify downloads. The owner has authorized public source publication. Use the exact source revision/archive matching each paid binary; the moving main branch alone does not identify a shipped build. |
 | Live compatibility | Consent-based Music/Spotify pause/resume, Word, ChatGPT/browser editors, secure fields, app switching during cleanup, multiple displays, mic disconnection, sleep/wake, noisy rooms, and macOS 15/26 across supported hardware. Automated tests do not substitute for this matrix. |
 | Models/assets | Packaged source notices have no missing-license placeholders after adapter removal. Qwen/MLX notices are included. Downloaded speech models and API services have their own terms; review the selected distribution catalog before sales. No model weights are bundled. |
 | Installation | Test the downloaded ZIP on a different Mac/account, including quarantine, Accessibility and update behavior. This machine's existing TCC registration cannot prove a first-install experience. |

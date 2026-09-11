@@ -140,10 +140,17 @@ function showInfo(title,message){$('#info-title').textContent=title;$('#info-tex
 $('#info-done').addEventListener('click',()=>$('#info-dialog').close());
 $('.purchase-button').addEventListener('click',()=>{
   if(salesEnabled){window.location.assign(siteConfig.checkoutUrl);return;}
-  showInfo('A little more headspace is on its way.','VOCA is in preview. The planned €5 download includes all local features. This beta is not Apple-notarized and may need manual approval in macOS Privacy & Security. Purchases open after download, source delivery, and seller details are verified. Optional AI API costs are separate.');
+  showInfo('A little more headspace is on its way.','VOCA’s source is public and free to build. The €5 prebuilt beta includes all local features. This beta is not Apple-notarized and may need manual approval in macOS Privacy & Security. Purchases open after download, source delivery, and seller details are verified. Optional AI API costs are separate.');
 });
 if(salesEnabled){
-  const link=document.createElement('a');link.href=siteConfig.downloadUrl;link.className='download-link';link.textContent='Already own Voca? Download for Mac';$('.price-card').append(link);
+  $('.price-description').textContent = 'All local features are included. This beta is locally signed, not Apple-notarized; macOS may require manual approval in Privacy & Security. Read the purchase terms before buying.';
+  $('#purchase-faq p').textContent = 'The price covers this prebuilt beta with all local features. Optional cloud AI usage is billed separately by your provider. See the purchase terms for support and upgrade details.';
+  $('#availability-faq p').textContent = 'The prebuilt beta is available through checkout. It is not Apple-notarized and may require manual approval in Privacy & Security. Apple Silicon and macOS 15+ are required; Liquid Glass requires macOS 26. The source is also free to build.';
+  $('.purchase-button').textContent = `Buy the beta · ${formatPrice.format(siteConfig.lifetimePrice)} ↗`;
+  $('.purchase-caption').textContent = siteConfig.deliveryMode === 'hosted-checkout' ? 'Secure checkout and file delivery through the store. Your receipt includes download access.' : 'One-time beta download. Optional API usage is billed separately.';
+  if (siteConfig.deliveryMode !== 'hosted-checkout') {
+    const link=document.createElement('a');link.href=siteConfig.downloadUrl;link.className='download-link';link.textContent='Already own Voca? Download for Mac';$('.price-card').append(link);
+  }
   for (const [label, url] of [['Matching source (GPLv3)', siteConfig.sourceUrl], ['Purchase terms', siteConfig.termsUrl]]) { const a=document.createElement('a');a.href=url;a.className='download-link';a.textContent=label;$('.price-card').append(a); }
 }
 $$('[data-info]').forEach(button=>button.addEventListener('click',()=>{

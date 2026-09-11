@@ -3,7 +3,11 @@ export function releaseProblems(config) {
   const problems = [];
   if (!config.releaseReady) problems.push('Preview mode is enabled.');
   if (!['unsigned-beta', 'notarized'].includes(config.distributionChannel)) problems.push('Choose a distribution channel.');
-  for (const key of ['checkoutUrl', 'downloadUrl', 'sourceUrl', 'termsUrl']) {
+  const deliveryMode = config.deliveryMode ?? 'direct-download';
+  if (!['direct-download', 'hosted-checkout'].includes(deliveryMode)) problems.push('Choose a supported delivery mode.');
+  const requiredUrls = ['checkoutUrl', 'sourceUrl', 'termsUrl'];
+  if (deliveryMode !== 'hosted-checkout') requiredUrls.push('downloadUrl');
+  for (const key of requiredUrls) {
     try {
       const url = new URL(config[key]);
       if (url.protocol !== 'https:' || url.username || url.password || !url.hostname.includes('.') || /(^|\.)(localhost|example\.(com|org|net))$/.test(url.hostname)) throw Error();

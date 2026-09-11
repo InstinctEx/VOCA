@@ -1,6 +1,6 @@
 # VOCA
 
-A UI and branding fork of the original FluidVoice public source, commit `42e33e68ec473129ad090521e56c22c912a16db3`.
+The native macOS application behind VOCA: local dictation, Qwen cleanup, editable writing styles, and destination-aware insertion. A GPLv3 fork of FluidVoice, based on commit `42e33e68ec473129ad090521e56c22c912a16db3`.
 
 The active code is here in **VocaSource**. The prior VocaNative reimplementation is retired. The packaged app is `../VOCA.app`.
 
@@ -13,7 +13,7 @@ The original speech models, model downloads, AI/API providers, enhancement, shor
 - **Last insertion & recovery** can undo a verified insertion while preserving later appends. It refuses uncertain edits and keeps the dictated words available to copy.
 - **Settings → Overlay → Near the Typing Cursor** places a compact destination-icon pill beside the caret when the app exposes its position. The screen-edge fallback remains available.
 - **Speech Models → Find a model for this Mac** measures local compute capacity and recommends a starting model. **Time selected model** measures the installed local model against the bundled sample.
-- Writing Styles has Natural, Concise, Email, and Notes templates plus advanced prompt editing. History adapts to a list/detail flow in narrow windows. Usage leads with time saved and recent trends.
+- Writing Styles has twelve editable templates plus advanced prompt editing. History adapts to a list/detail flow in narrow windows. Usage leads with time saved and recent trends.
 
 See **VOCA-WORKFLOW-REVIEW.md** for the current implementation and verification details.
 
@@ -21,7 +21,7 @@ See **VOCA-WORKFLOW-REVIEW.md** for the current implementation and verification 
 
 Run `./build-voca.sh` with Xcode installed. It builds the public target and packages `../VOCA.app`. A local ad-hoc signature is used unless `SIGNING_IDENTITY` names an installed signing identity. Ad-hoc rebuilds may require macOS permission approval again. The app needs Microphone and Accessibility access; API providers need your own credentials.
 
-407 selected tests passed across shortcuts, navigation, native editing, providers, dictionaries, history/routing, audio conversion, and privacy boundaries. This is not a claim that every downloadable model or paid API has been live-tested.
+September 12 regression: 414 passed, four opt-in model/audio tests skipped, zero failures. See the [main README](../README.md) for current measurements and limitations. This is not a claim that every downloadable model or paid API has been live-tested.
 
 The private Fluid Intelligence runtime is absent from the upstream public repository. Its conditional integration is retained. VOCA updates require an independent release channel; upstream updates cannot overwrite this fork.
 

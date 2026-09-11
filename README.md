@@ -4,8 +4,12 @@
 
 Native macOS dictation for people whose best sentence occasionally starts with “um, wait.” Speak into the app you're already using, choose your speech model, and add optional local or cloud text cleanup.
 
-> **Status: locally signed beta; repository currently private.**
-> The optimized app builds and runs, but it is **not Apple-notarized**. Public downloads and purchases are not live. The planned offer is **€5 for the prebuilt beta with all local features included**; optional cloud API usage is separate. See [installation](docs/BETA-INSTALL.md) and [release status](docs/RELEASE-READINESS.md).
+[Source](https://github.com/InstinctEx/VOCA) · [Report a bug](https://github.com/InstinctEx/VOCA/issues) · [Build it yourself](#install-or-build) · [Installation guide](docs/BETA-INSTALL.md)
+
+> **Public source beta · Apple Silicon · macOS 15+**
+> Build VOCA for free from this repository. A **€5 prebuilt beta download** is being set up, with all local features included and no activation key. Checkout is not open yet. The app is **not Apple-notarized**; macOS may require manual installation approval. Optional cloud API usage costs extra through your provider.
+
+VOCA is a GPLv3 fork of [FluidVoice](https://github.com/altic-dev/Fluid-oss). We're building on that foundation openly, with our own interface and writing workflow. The keyboard may get a holiday. The attribution stays.
 
 ## The parts that make it VOCA
 
@@ -91,7 +95,7 @@ npm run check
 npm run build     # static files in dist/
 ```
 
-No npm dependencies; Node 20+. `config.js` holds the planned €5 price and public configuration, never secrets. Shared validation keeps sales off until checkout/download/source/terms URLs, seller identity, support email and beta disclosure are configured. `node scripts/site-release-check.mjs` currently fails deliberately because those details are missing.
+No npm dependencies; Node 20+. `config.js` holds the planned €5 price and public configuration, never secrets. Shared validation keeps sales off until checkout, corresponding source, terms, seller identity, support email and beta disclosure are configured. Hosted checkout can deliver the paid files without exposing a public binary URL. `node scripts/site-release-check.mjs` currently fails deliberately because those details are missing.
 
 Upload only `dist/` to Cloudflare Pages. Pages limits individual assets to 25 MiB; the smaller ZIP currently fits, but check each release and use separate download storage if it exceeds that limit. A public static ZIP URL is not paid-download access control. Pair every distributed binary with its corresponding source.
 
@@ -99,7 +103,9 @@ Upload only `dist/` to Cloudflare Pages. Pages limits individual assets to 25 Mi
 
 VOCA is a **GPLv3 fork of [FluidVoice](https://github.com/altic-dev/Fluid-oss)**, based on `42e33e68ec473129ad090521e56c22c912a16db3`. Its speech/provider foundations remain. VOCA adds its interface, destination/recovery workflow, personal styles, pause handling and local Qwen integration. Original notices remain. Credit is not a UI bug.
 
-The planned €5 purchase is for the convenient prebuilt download with all local features, not exclusive rights over GPL code. Recipients retain GPL rights, including modification and redistribution, and need access to matching source. The repository is private today; public source availability is being considered, not already live. Provider fees, downloaded models and assets have their own terms.
+The planned €5 purchase is for the convenient prebuilt download with all local features, not exclusive rights over GPL code. Recipients retain GPL rights, including modification and redistribution, and need access to matching source. The source is public and free to build. Paying supports the convenient prebuilt distribution; it does not restrict the GPL rights of recipients. Provider fees, downloaded models and assets have their own terms.
+
+Contributions and reproducible bug reports are welcome. Start with [CONTRIBUTING.md](CONTRIBUTING.md); do not include API keys, personal recordings, or private dictation in an issue.
 
 See [LICENSE](LICENSE), [changes](VocaSource/VOCA-CHANGES.md), [third-party notices](VocaSource/THIRD-PARTY-NOTICES.txt), [monetization](docs/MONETIZATION.md), and [remaining release work](docs/RELEASE-READINESS.md). No fake activation server is hiding behind a button that always says success.
 
