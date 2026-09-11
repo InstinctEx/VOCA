@@ -45,7 +45,7 @@ struct WelcomeView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 28) {
                 HStack(alignment: .top, spacing: 24) {
-                    VocaPageHeader(title: "Your voice. In every app.", subtitle: "A thought, a message, a whole new idea. Just say it.", symbol: "waveform")
+                    VocaPageHeader(title: "Make room for your words.", subtitle: "Press your shortcut. Speak naturally. Keep moving.", symbol: "waveform")
                     Text(self.settings.primaryDictationShortcutDisplayString)
                         .font(.system(size: 16, weight: .medium, design: .monospaced))
                         .padding(.horizontal, 18).padding(.vertical, 12)
@@ -153,11 +153,11 @@ struct WelcomeView: View {
 
     private func destination(_ title: String, detail: String, symbol: String, item: SidebarItem) -> some View {
         Button { self.selectedSidebarItem = item } label: {
-            VStack(alignment: .leading, spacing: 10) {
-                HStack { Image(systemName: symbol).font(.system(size: 20)).foregroundStyle(Color.fluidGreen); Spacer(); Image(systemName: "arrow.up.right").font(.caption).foregroundStyle(self.theme.palette.tertiaryText) }
-                Text(title).font(.system(size: 13, weight: .semibold)).lineLimit(2, reservesSpace: true)
-                Text(detail).font(.system(size: 12)).foregroundStyle(self.theme.palette.secondaryText).lineLimit(2, reservesSpace: true)
-            }.padding(18).frame(maxWidth: .infinity, alignment: .leading).vocaGlass(cornerRadius: 18, interactive: true)
+            VStack(alignment: .leading, spacing: 8) {
+                HStack { Image(systemName: symbol).font(.system(size: 19)).foregroundStyle(self.theme.palette.primaryText); Spacer(); Image(systemName: "arrow.up.right").font(.caption).foregroundStyle(self.theme.palette.tertiaryText) }
+                Text(title).font(.system(size: 13, weight: .semibold)).lineLimit(2)
+                Text(detail).font(.system(size: 12)).foregroundStyle(self.theme.palette.secondaryText).lineLimit(2)
+            }.padding(18).frame(maxWidth: .infinity, alignment: .leading).vocaContentSurface()
         }.buttonStyle(.plain)
     }
 }

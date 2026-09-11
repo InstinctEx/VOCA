@@ -1339,9 +1339,8 @@ struct ContentView: View {
     private var vocaSidebarHeader: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack(spacing: 10) {
-                Image(systemName: "waveform").font(.system(size: 20, weight: .semibold))
-                    .foregroundStyle(self.theme.palette.accent)
-                Text("VOCA").font(.system(size: 20, weight: .semibold, design: .rounded)).tracking(1)
+                VocaBrandMark(size: 30)
+                Text("VOCA").font(.system(size: 18, weight: .semibold)).tracking(0.4)
                 Spacer()
             }
             HStack(spacing: 8) {
@@ -1353,7 +1352,7 @@ struct ContentView: View {
                         .buttonStyle(.plain).foregroundStyle(.secondary).help("Clear search")
                 }
             }.font(.system(size: 12)).padding(9)
-                .vocaGlass(cornerRadius: 11)
+                .background(Color.primary.opacity(0.045), in: RoundedRectangle(cornerRadius: 9))
         }.padding(.horizontal, 16).padding(.vertical, 14)
     }
     private var appSidebarView: some View {
@@ -1369,14 +1368,14 @@ struct ContentView: View {
                 self.sidebarNavigationLink(.cleanupStyles, title: "Cleanup Styles", systemImage: "wand.and.stars")
                 self.sidebarNavigationLink(.customDictionary, title: "Custom Dictionary", systemImage: "text.book.closed.fill")
             } header: {
-                self.sidebarSectionHeader("Configure")
+                self.sidebarSectionHeader("Personalize")
             }
 
             Section {
                 self.sidebarNavigationLink(.commandMode, title: "Command Mode", systemImage: "terminal.fill")
                 self.sidebarNavigationLink(.meetingTools, title: "File Transcription", systemImage: "doc.text.fill")
             } header: {
-                self.sidebarSectionHeader("Use")
+                self.sidebarSectionHeader("Tools")
             }
 
             Section {

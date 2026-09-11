@@ -81,6 +81,7 @@ struct AIEnhancementSettingsView: View {
     @Binding var shortcutRecordingMessage: String?
     @State var expandedProviderID: String? = nil
     @State var providerSearchText: String = ""
+    @State var providerLocation: String = "On this Mac"
     @State var privateAISelectedModelID: String = PrivateAIIntegrationService.configuredModelID
     @State var privateAILoadState: PrivateAIModelLoadState = .idle
     @State var privateAIModelUpdateStatusByID: [String: PrivateAIModelUpdateStatus] = [:]

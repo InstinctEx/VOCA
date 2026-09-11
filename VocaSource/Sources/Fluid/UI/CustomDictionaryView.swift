@@ -341,7 +341,7 @@ struct CustomDictionaryView: View {
 
     private var pageHeader: some View {
         VStack(alignment: .leading, spacing: 20) {
-            VocaPageHeader(title: "Words, your way.", subtitle: "Names, familiar phrases, and the little things that make your vocabulary yours.", symbol: "character.book.closed")
+            VocaPageHeader(title: "Your vocabulary", subtitle: "A home for names, phrases, and words you use every day.", symbol: "character.book.closed")
             HStack {
                 Text("Your personal dictionary").font(.system(size: 13)).foregroundStyle(.secondary)
                 Spacer()

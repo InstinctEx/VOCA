@@ -67,42 +67,21 @@ extension AIEnhancementSettingsView {
 
     private var providerConfigurationContent: some View {
         VStack(alignment: .leading, spacing: 16) {
-            VocaCleanupHealthView()
-            VocaKeychainAccessView { self.viewModel.loadSettings() }
-            HStack(spacing: 12) {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("Connections")
-                        .font(.system(size: 14, weight: .semibold))
-                    Text("Your models and services, in one place.")
-                        .font(.caption)
-                        .foregroundStyle(self.theme.palette.secondaryText)
-                }
-
-                Spacer()
-
-                Button(action: { self.viewModel.showHelp.toggle() }) {
-                    HStack(spacing: 5) {
-                        Image(systemName: self.viewModel.showHelp ? "questionmark.circle.fill" : "questionmark.circle")
-                            .font(.system(size: 14))
-                        Text("Help")
-                            .font(.caption)
-                            .fontWeight(.medium)
-                    }
-                    .foregroundStyle(self.viewModel.showHelp ? self.theme.palette.accent : .secondary)
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 6)
-                    .background(
-                        Capsule()
-                            .fill(self.viewModel.showHelp ? self.theme.palette.accent.opacity(0.12) : self.theme.palette.cardBackground.opacity(0.8))
-                            .overlay(
-                                Capsule()
-                                    .stroke(self.viewModel.showHelp ? self.theme.palette.accent.opacity(0.3) : self.theme.palette.cardBorder.opacity(0.4), lineWidth: 1)
-                            )
-                    )
-                }
-                .buttonStyle(.plain)
+            DisclosureGroup("Performance & recovery") { VocaCleanupHealthView().padding(.top, 10) }
+                .font(.callout).padding(14).vocaContentSurface()
+            if self.providerLocation != "On this Mac" { VocaKeychainAccessView { self.viewModel.loadSettings() } }
+            HStack {
+                VocaSectionHeading(title: "Choose where your words are refined")
+                Button("Help", systemImage: "questionmark.circle") { self.viewModel.showHelp.toggle() }
+                    .buttonStyle(.borderless)
             }
-
+            Picker("Processing location", selection: self.$providerLocation) {
+                Text("On this Mac").tag("On this Mac")
+                Text("Cloud services").tag("Cloud services")
+                Text("Your server").tag("Your server")
+            }.pickerStyle(.segmented).labelsHidden().controlSize(.large)
+            Label(self.providerLocation == "On this Mac" ? "Built in. No account or API key needed." : self.providerLocation == "Cloud services" ? "Connect a provider using your own API key." : "Connect Ollama, LM Studio, or your own endpoint.", systemImage: self.providerLocation == "On this Mac" ? "lock" : self.providerLocation == "Cloud services" ? "cloud" : "network")
+                .font(.callout).foregroundStyle(self.theme.palette.secondaryText)
             if self.viewModel.showHelp { self.helpSectionView }
 
             self.providerStepContent
@@ -220,9 +199,9 @@ extension AIEnhancementSettingsView {
 
     var providerStepContent: some View {
         VStack(alignment: .leading, spacing: 16) {
-            if !self.verifiedProviderItems.isEmpty { self.verifiedProvidersSection }
+            if self.verifiedProviderItems.contains(where: { self.matchesProviderLocation($0) }) { self.verifiedProvidersSection }
 
-            self.allProvidersSection
+            if self.providerLocation != "On this Mac" || self.unverifiedProviderItems.contains(where: { self.matchesProviderLocation($0) }) { self.allProvidersSection }
 
             if self.viewModel.showingEditProvider,
                self.viewModel.selectedProviderID != PrivateAIProviderFeature.shared.providerID
@@ -235,7 +214,7 @@ extension AIEnhancementSettingsView {
 
     private var allProvidersSection: some View {
         let query = self.providerSearchText.trimmingCharacters(in: .whitespacesAndNewlines)
-        let items = self.unverifiedProviderItems
+        let items = self.unverifiedProviderItems.filter { self.matchesProviderLocation($0) }
         let filteredItems = query.isEmpty
             ? items
             : items.filter {
@@ -248,7 +227,7 @@ extension AIEnhancementSettingsView {
                 Image(systemName: "square.grid.2x2")
                     .font(.system(size: 11, weight: .medium))
                     .foregroundStyle(self.theme.palette.secondaryText)
-                Text("Available connections")
+                Text("Add a connection")
                     .font(.system(size: 12, weight: .semibold))
                     .foregroundStyle(self.theme.palette.secondaryText)
                 Text("(\(count))")
@@ -282,14 +261,14 @@ extension AIEnhancementSettingsView {
                 if filteredItems.isEmpty, !query.isEmpty {
                     ContentUnavailableView.search(text: query)
                 }
-                self.customProviderButton.padding(12)
+                if self.providerLocation == "Your server" { self.customProviderButton.padding(12) }
             }.vocaContentSurface()
 
         }
     }
 
     private var verifiedProvidersSection: some View {
-        let verified = self.verifiedProviderItems
+        let verified = self.verifiedProviderItems.filter { self.matchesProviderLocation($0) }
         let count = verified.count
 
         return VStack(alignment: .leading, spacing: 8) {
@@ -297,7 +276,7 @@ extension AIEnhancementSettingsView {
                 Image(systemName: "checkmark.seal.fill")
                     .font(.system(size: 11, weight: .medium))
                     .foregroundStyle(Color.fluidGreen)
-                Text("Verified providers")
+                Text("Ready to use")
                     .font(.system(size: 12, weight: .semibold))
                     .foregroundStyle(self.theme.palette.secondaryText)
                 Text("(\(count))")
@@ -337,6 +316,12 @@ extension AIEnhancementSettingsView {
                 }
             }
         }
+    }
+
+    private func matchesProviderLocation(_ item: ProviderItem) -> Bool {
+        if item.id == PrivateAIProviderFeature.shared.providerID { return self.providerLocation == "On this Mac" }
+        let server = ["ollama", "lmstudio"].contains(item.id.lowercased()) || !item.isBuiltIn
+        return server ? self.providerLocation == "Your server" : self.providerLocation == "Cloud services"
     }
 
     private struct ProviderItem: Identifiable, Hashable {
@@ -1462,7 +1447,7 @@ extension AIEnhancementSettingsView {
         let hasModels = !models.isEmpty
         let isEditing = self.viewModel.showingEditProvider && self.viewModel.selectedProviderID == item.id
         let iconColumnWidth = AISettingsLayout.providerRowControlHeight
-        let actionColumnWidth: CGFloat = 76
+        let actionColumnWidth: CGFloat = 56
 
         return VStack(alignment: .leading, spacing: 0) {
             HStack(alignment: .center, spacing: 12) {
@@ -1483,6 +1468,9 @@ extension AIEnhancementSettingsView {
 
                 Spacer()
 
+            }
+            // Separate identity from controls so names remain readable in narrow windows.
+            HStack {
                 // Fixed action grid: companion icon, optional reasoning, primary action.
                 HStack(spacing: 8) {
                     Button {
@@ -1495,7 +1483,7 @@ extension AIEnhancementSettingsView {
                         )
                         .font(.caption2.weight(.semibold))
                         .lineLimit(1)
-                        .frame(width: 92, height: AISettingsLayout.providerRowControlHeight)
+                        .frame(width: 80, height: AISettingsLayout.providerRowControlHeight)
                     }
                     .fluidCompactButton(
                         isReady: isDefaultProvider,
@@ -1514,7 +1502,7 @@ extension AIEnhancementSettingsView {
                             selectedModel: self.privateAIModelBinding,
                             selectionEnabled: !isFluidBusy,
                             displayName: self.privateAIModelDisplayName,
-                            controlWidth: 180,
+                            controlWidth: 140,
                             controlHeight: AISettingsLayout.providerRowControlHeight
                         )
 
@@ -1532,9 +1520,6 @@ extension AIEnhancementSettingsView {
                             }
                             .disabled(isFluidBusy)
                             .frame(width: iconColumnWidth, height: AISettingsLayout.providerRowControlHeight)
-                        } else {
-                            Color.clear
-                                .frame(width: iconColumnWidth, height: AISettingsLayout.providerRowControlHeight)
                         }
 
                         Button(action: {
@@ -1557,7 +1542,7 @@ extension AIEnhancementSettingsView {
                             models: models,
                             selectedModel: self.modelBinding(for: item.id),
                             selectionEnabled: hasModels,
-                            controlWidth: 180,
+                            controlWidth: 140,
                             controlHeight: AISettingsLayout.providerRowControlHeight
                         )
 
@@ -1594,7 +1579,7 @@ extension AIEnhancementSettingsView {
                         .help("Edit provider")
                     }
                 }
-                .fixedSize(horizontal: true, vertical: false)
+                .padding(.top, 12)
             }
 
             if isPrivateAIProvider, isFluidDownloading || isFluidLoading || hasFluidLoadFailure || !isFluidInstalled {
@@ -1672,12 +1657,13 @@ extension AIEnhancementSettingsView {
             RoundedRectangle(cornerRadius: 10, style: .continuous)
                 .fill(bgColor)
 
-            if let name {
-                let isFluid = name == "Provider_Fluid1"
+            if item.id == PrivateAIProviderFeature.shared.providerID {
+                VocaBrandMark(size: 38)
+            } else if let name {
                 Image(name)
                     .resizable()
-                    .aspectRatio(contentMode: isFluid ? .fill : .fit)
-                    .frame(width: isFluid ? 34 : 26, height: isFluid ? 34 : 26)
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 26, height: 26)
             } else {
                 Text(self.providerInitials(for: item))
                     .font(.system(size: 14, weight: .bold, design: .rounded))
@@ -1693,7 +1679,7 @@ extension AIEnhancementSettingsView {
         let name = item.name.lowercased()
 
         if id.contains(PrivateAIProviderFeature.shared.providerID) || name.contains("fluid") {
-            return Color(red: 0.1, green: 0.1, blue: 0.12) // Dark/black
+            return self.theme.palette.cardBackground
         }
         if id.contains("anthropic") || name.contains("anthropic") {
             return Color(red: 0.85, green: 0.75, blue: 0.62) // Warm tan
@@ -1737,7 +1723,7 @@ extension AIEnhancementSettingsView {
         let name = item.name.lowercased()
 
         if id.contains(PrivateAIProviderFeature.shared.providerID) || name.contains("fluid") {
-            return "Provider_Fluid1"
+            return nil
         }
         if id.contains("openai") || name.contains("openai") {
             return "Provider_OpenAI"

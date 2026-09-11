@@ -11,21 +11,30 @@ extension VoiceEngineSettingsView {
     // MARK: - Speech Recognition Card
 
     var speechRecognitionCard: some View {
-        let models = self.viewModel.filteredSpeechModels.filter {
+        let models = self.viewModel.filteredSpeechModels.filter { self.modelLibraryScope != "Downloaded" || $0.isInstalled }.filter {
             self.modelSearch.isEmpty || $0.humanReadableName.localizedCaseInsensitiveContains(self.modelSearch) || self.speechModelSubtitle(for: $0).localizedCaseInsensitiveContains(self.modelSearch) || $0.cardDescription.localizedCaseInsensitiveContains(self.modelSearch)
         }
         return ScrollView {
             VStack(alignment: .leading, spacing: 26) {
                 VocaPageHeader(title: "Speech Models", subtitle: "Find the right balance of speed, language, and accuracy for your voice.", symbol: "waveform")
-                VocaModelRecommendationView(viewModel: self.viewModel)
-                VStack(alignment: .leading, spacing: 16) {
-                    VocaSectionHeading(title: "Your voice engine", detail: self.viewModel.asr.isAsrReady ? "Ready" : "Selected")
-                    self.speechModelCard(for: self.settings.selectedSpeechModel)
-                }.padding(20).vocaContentSurface()
+                HStack(spacing: 14) {
+                    VocaBrandMark(size: 42)
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Current voice engine").font(.caption).foregroundStyle(.secondary)
+                        Text(self.speechModelSubtitle(for: self.settings.selectedSpeechModel)).font(.headline)
+                    }
+                    Spacer()
+                    Label(self.viewModel.asr.isAsrReady ? "Ready" : "Selected", systemImage: self.viewModel.asr.isAsrReady ? "checkmark.circle.fill" : "circle")
+                        .font(.callout).foregroundStyle(.secondary)
+                }.padding(18).vocaContentSurface()
                 VStack(alignment: .leading, spacing: 16) {
                     HStack {
-                        VocaSectionHeading(title: "Model Library", detail: "\(models.count) models")
+                        VocaSectionHeading(title: "Voice library", detail: "\(models.count) available")
                     }
+                    Picker("Library", selection: self.$modelLibraryScope) {
+                        Text("All models").tag("All models")
+                        Text("Downloaded").tag("Downloaded")
+                    }.pickerStyle(.segmented).labelsHidden().frame(maxWidth: 280)
                     ViewThatFits(in: .horizontal) {
                         HStack(spacing: 12) { self.modelSearchField; self.modelFilters }
                         VStack(spacing: 12) { self.modelSearchField; self.modelFilters }
@@ -43,6 +52,7 @@ extension VoiceEngineSettingsView {
                     Button("About the selected model", systemImage: "info.circle") { self.showModelDetails = true }
                         .buttonStyle(.borderless).font(.system(size: 12))
                 }
+                VocaModelRecommendationView(viewModel: self.viewModel)
                 DisclosureGroup("Transcription preferences") {
                     self.fillerWordsSection.padding(.top, 14)
                 }.font(.system(size: 13, weight: .medium)).padding(20).vocaContentSurface()

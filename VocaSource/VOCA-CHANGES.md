@@ -69,3 +69,10 @@ Validation: 360 distinct selected regression tests passed. Builds, packaging, de
 ## VOCA Polish — Qwen 4B
 
 Built-in Apple Silicon enhancement using Qwen3-4B-Instruct-2507 (4-bit) and MLX Swift. Pinned, SHA-256-verified downloads support pause/resume and deletion. No API key or companion server is required. Writing styles and personal instructions feed the local editor. Incomplete or numerically altered output is rejected for original-word recovery. Model weights unload on memory pressure or after an idle interval. A local sample editor reports measured processing time.
+
+## Neutral VOCA interface
+- Replaced the inherited local intelligence logo with VOCA's shared waveform mark.
+- Introduced warm-white and graphite surfaces, restrained typography, quieter cards and control-only glass.
+- Grouped enhancement providers by On this Mac / Cloud services / Your server; retained existing models, verification and custom endpoints.
+- Added a Downloaded speech-model filter and compact active-engine summary; refined overview and dictionary presentation.
+- Separated verified provider identity and controls to prevent narrow-window clipping.

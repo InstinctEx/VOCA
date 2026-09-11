@@ -136,7 +136,7 @@ struct VocaPageHeader: View {
     let symbol: String
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text(title).font(.system(size: 30, weight: .bold)).tracking(-0.7)
+            Text(title).font(.system(size: 27, weight: .semibold)).tracking(-0.5)
             Text(subtitle).font(.system(size: 14)).foregroundStyle(self.theme.palette.secondaryText)
                 .fixedSize(horizontal: false, vertical: true)
         }.frame(maxWidth: .infinity, alignment: .leading)
@@ -161,9 +161,9 @@ struct VocaContentSurface: ViewModifier {
     @Environment(\.colorSchemeContrast) private var contrast
     func body(content: Content) -> some View {
         content
-            .background(self.theme.palette.cardBackground, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+            .background(self.theme.palette.cardBackground, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
             .overlay {
-                RoundedRectangle(cornerRadius: 20, style: .continuous)
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
                     .strokeBorder(self.contrast == .increased ? Color.primary.opacity(0.5) : self.theme.palette.cardBorder.opacity(0.6))
                     .allowsHitTesting(false)
             }
@@ -171,4 +171,20 @@ struct VocaContentSurface: ViewModifier {
 }
 extension View {
     func vocaContentSurface() -> some View { modifier(VocaContentSurface()) }
+}
+
+/// VOCA's voice mark: a restrained waveform, shared by navigation and local AI.
+struct VocaBrandMark: View {
+    var size: CGFloat = 32
+    var body: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: size * 0.28, style: .continuous)
+                .fill(.primary.opacity(0.07))
+            HStack(spacing: size * 0.075) {
+                ForEach(Array([0.24, 0.48, 0.68, 0.42, 0.22].enumerated()), id: \.offset) { _, height in
+                    Capsule().fill(.primary).frame(width: size * 0.075, height: size * height)
+                }
+            }
+        }.frame(width: size, height: size).accessibilityLabel("VOCA")
+    }
 }

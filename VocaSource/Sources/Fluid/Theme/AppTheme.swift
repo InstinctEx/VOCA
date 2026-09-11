@@ -45,7 +45,7 @@ struct AppTheme {
         static let standard = Typography(
             displayTitle: .system(size: 42, weight: .semibold),
             statement: .system(size: 17, weight: .regular),
-            title: .system(size: 28, weight: .bold),
+            title: .system(size: 26, weight: .semibold),
             titleIcon: .system(size: 22, weight: .regular),
             sectionTitle: .system(size: 15, weight: .semibold),
             body: .system(size: 14, weight: .regular),
@@ -287,18 +287,18 @@ struct AppTheme {
     static func light(accent: Color) -> AppTheme {
         AppTheme(
             palette: Palette(
-                windowBackground: Color(rgb: 0xF5F7FA),
+                windowBackground: Color(rgb: 0xF5F5F3),
                 contentBackground: Color(rgb: 0xFFFFFF),
-                sidebarBackground: Color(rgb: 0xEAF0F6),
+                sidebarBackground: Color(rgb: 0xEEEEEB),
                 cardBackground: Color(rgb: 0xFFFFFF),
                 elevatedCardBackground: Color(rgb: 0xFFFFFF),
-                toolbarBackground: Color(rgb: 0xF5F7FA),
+                toolbarBackground: Color(rgb: 0xF5F5F3),
 
                 cardBorder: Color.black.opacity(0.12),
                 separator: Color(nsColor: .separatorColor),
                 primaryText: Color(nsColor: .labelColor),
-                secondaryText: Color(rgb: 0x536276),
-                tertiaryText: Color(rgb: 0x606D80),
+                secondaryText: Color(rgb: 0x626260),
+                tertiaryText: Color(rgb: 0x767673),
                 accent: accent,
                 warning: Color(nsColor: .systemOrange),
                 success: Color(nsColor: .systemGreen)
@@ -326,22 +326,22 @@ struct AppTheme {
         )
     }
 
-    /// VOCA ink surfaces. Native semantic text and accent colors remain adaptive.
+    /// Neutral graphite surfaces. Native semantic text and accent colors remain adaptive.
     static func dark(accent: Color) -> AppTheme {
         AppTheme(
             palette: Palette(
-                windowBackground: Color(rgb: 0x0D1521),
-                contentBackground: Color(rgb: 0x172333),
-                sidebarBackground: Color(rgb: 0x101B2A),
-                cardBackground: Color(rgb: 0x172333),
-                elevatedCardBackground: Color(rgb: 0x213247),
-                toolbarBackground: Color(rgb: 0x101B2A),
+                windowBackground: Color(rgb: 0x1C1C1E),
+                contentBackground: Color(rgb: 0x242426),
+                sidebarBackground: Color(rgb: 0x202022),
+                cardBackground: Color(rgb: 0x242426),
+                elevatedCardBackground: Color(rgb: 0x303032),
+                toolbarBackground: Color(rgb: 0x202022),
 
                 cardBorder: Color.white.opacity(0.10),
                 separator: Color.white.opacity(0.16),
                 primaryText: Color(nsColor: .labelColor),
-                secondaryText: Color(rgb: 0xABBDD1),
-                tertiaryText: Color(rgb: 0x8DA0B8),
+                secondaryText: Color(rgb: 0xB8B8BC),
+                tertiaryText: Color(rgb: 0x96969C),
                 accent: accent,
                 warning: Color(nsColor: .systemOrange),
                 success: Color(nsColor: .systemGreen)
