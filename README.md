@@ -126,7 +126,7 @@ npm run check
 npm run build     # static output in dist/
 ```
 
-No npm dependencies. Node 20 or newer. `releaseReady: false` deliberately prevents checkout and download links from activating. Set real URLs, support details, and final seller terms only after the release checklist passes. The €49 one-time price is a proposal, not a live offer. Cloud usage is separate.
+No npm dependencies. Node 20 or newer. `releaseReady: false` deliberately prevents checkout and download links from activating. Set real URLs, support details, and final seller terms only after the release checklist passes. The €5 beta download price is planned, not a live offer. All local features are included; this build is locally signed but not Apple-notarized. Cloud usage is separate.
 
 ```sh
 node scripts/site-release-check.mjs
@@ -152,3 +152,7 @@ Beautiful buttons are nice. A customer’s words arriving intact is the business
 ## Private development repository
 
 [InstinctEx/VOCA](https://github.com/InstinctEx/VOCA) contains the source snapshot, website, tests and these documents. Repository visibility is private. The original website workspace remote was preserved; the upload checkout is `.release-repo/`. Do not include build caches, recordings or credentials when updating it.
+
+## Unsigned beta build
+
+No paid Apple Developer account is needed for the locally signed beta. The optimized Release build is verified locally; first-install approval and Accessibility setup still apply. See [installation notes](docs/BETA-INSTALL.md), [release status](docs/RELEASE-READINESS.md), and `scripts/package-beta.sh` for the binary/source/checksum bundle. Sales remain disabled pending real checkout, seller, support, and download configuration.

@@ -8,7 +8,7 @@ stage="$(mktemp -d "$project_root/DerivedData/package.XXXXXX")"
 ditto "$product" "$stage/VOCA.app"
 # Xcode test runs inject these into the host app; never ship test runners.
 rm -rf "$stage/VOCA.app/Contents/PlugIns/FluidDictationIntegrationTests.xctest"
-for test_artifact in Testing.framework XCTAutomationSupport.framework XCTest.framework XCTestCore.framework XCTestSupport.framework XCUIAutomation.framework XCUnit.framework libXCTestBundleInject.dylib libXCTestSwiftSupport.dylib; do
+for test_artifact in MediaRemoteAdapter.framework Testing.framework XCTAutomationSupport.framework XCTest.framework XCTestCore.framework XCTestSupport.framework XCUIAutomation.framework XCUnit.framework libXCTestBundleInject.dylib libXCTestSwiftSupport.dylib; do
   rm -rf "$stage/VOCA.app/Contents/Frameworks/$test_artifact"
 done
 if [[ -d "$stage/VOCA.app/Contents/Frameworks/CTranscribe.framework" ]]; then
@@ -24,6 +24,7 @@ for executable in "$stage/VOCA.app/Contents/MacOS/"*(N); do
 done
 voca_sign_args=(--force --sign "${SIGNING_IDENTITY:--}")
 voca_entitlements="$project_root/Fluid.entitlements"
+if [[ "$voca_configuration" == "Release" ]]; then voca_entitlements="$project_root/Release.entitlements"; fi
 if [[ "${SIGNING_IDENTITY:--}" != "-" ]]; then
   voca_sign_args+=(--options runtime --timestamp)
   voca_entitlements="$project_root/Release.entitlements"

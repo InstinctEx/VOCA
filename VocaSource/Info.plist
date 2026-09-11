@@ -27,7 +27,7 @@
 	<key>LSUIElement</key>
 	<false/>
 	<key>NSAppleEventsUsageDescription</key>
-	<string>VOCA needs permission to control system events for managing launch at startup settings.</string>
+	<string>VOCA uses Automation to pause Music or Spotify during dictation and resume the same track afterward, only when you enable this feature.</string>
 	<key>POSTHOG_API_KEY</key>
 	<string></string>
 	<key>POSTHOG_HOST</key>

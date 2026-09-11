@@ -108,3 +108,7 @@ Built-in Apple Silicon enhancement using Qwen3-4B-Instruct-2507 (4-bit) and MLX 
 ## Local cleanup instruction boundary and writing templates
 
 Reproduced and corrected Qwen answering dictated instructions instead of editing them. Transcript input is serialized as data, chat-control delimiters are escaped, editing examples preserve requests and speaking roles, and a conservative assistant-reply check falls back to original words. Refined all twelve writing templates without overwriting saved custom instructions. Added real-model adversarial fixtures and isolated provider-routing tests from saved Everyday model selections. See docs/TRANSCRIPT-BOUNDARY.md for scope and limitations.
+
+## Unsigned beta preparation
+
+Removed the unresolved private media adapter. Optional media pause now targets Music and Spotify through their public scripting interfaces, with explicit Automation setup and same-track resume. Other players/browser media are not controlled. Added a locally signed Release distribution path and source/checksum packaging; public sales remain unconfigured. Validation: 414 app tests passed, four opt-in tests skipped; six website tests passed. Live player permissions and broad destination/hardware testing remain beta work.

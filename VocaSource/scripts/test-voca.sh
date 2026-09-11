@@ -6,7 +6,6 @@ voca_args=(-project Fluid.xcodeproj -scheme Fluid -configuration Debug -destinat
 if [[ "${VOCA_TEST_WITHOUT_BUILD:-0}" != "1" ]]; then
   xcodebuild "${voca_args[@]}" build-for-testing
 fi
-codesign --force --sign - DerivedData/Build/Products/Debug/PackageFrameworks/MediaRemoteAdapter.framework
 voca_suites=(VocaInterfaceTests KeychainServiceCacheTests HotkeyShortcutTests SettingsNavigationStateTests CustomDictionaryManualEntryTests LLMClientRequestBodyTests TemperatureSupportTests StripThinkingTagsTests SupportedFileExtensionsTests SpeakerTurnMergingTests WhisperLanguageSelectionTests PrivateAIProviderPromptFormatTests PrivateAIDictationTokenBudgetTests AudioBufferConverterTests SpokenSendTests TypingServiceTransientPasteboardTests AnalyticsDatabaseTests DictationE2ETests MediaPlaybackServiceTests)
 voca_selected=()
 for suite in "${voca_suites[@]}"; do voca_selected+=("-only-testing:FluidDictationIntegrationTests/$suite"); done

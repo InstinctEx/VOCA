@@ -29,7 +29,7 @@ The private Fluid Intelligence runtime is absent from the upstream public reposi
 
 GPLv3; see LICENSE. Original author credits are preserved. See README-UPSTREAM.md for the original project's documentation and VOCA-CHANGES.md for this fork's scope.
 
-See **VOCA-REVIEW.md** for the September 2026 application review, release blockers, and verification limits. **THIRD-PARTY-NOTICES.txt** inventories the Xcode-locked dependencies; mediaremote-adapter still requires licensing clarification before distribution.
+See **VOCA-REVIEW.md** for the September 2026 application review, release blockers, and verification limits. **THIRD-PARTY-NOTICES.txt** inventories the Xcode-locked dependencies; the unresolved mediaremote-adapter has been removed. Optional Music/Spotify control uses their public scripting interfaces and requires explicit Automation permission.
 
 ## Personal voice preview
 

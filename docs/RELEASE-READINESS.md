@@ -1,40 +1,42 @@
-# Release readiness
+# Release readiness — 12 September 2026
 
-**Decision: not ready for public paid app distribution.** The app and website are a usable development preview. Do not confuse a successful build with a completed software business.
+**Current target: a locally signed, unnotarized beta. Paid sales are not open.** The owner does not have a paid Apple Developer account. An optimized Release build does not require that account, but it does not gain Developer ID trust or Apple notarization. Installation may require manual approval; ad-hoc updates can require renewed Accessibility permission.
 
-## Implemented in this pass
+## Completed engineering work
 
-Personal writing-style analysis, twelve templates, optional pause-aware finish, a three-second resettable countdown, slow-cleanup feedback and bounded waiting, original-word recovery, guarded delivery after delayed processing, a restored draggable permission helper, and opt-in detailed diagnostics. Website copy now explains these features and their limits. Purchase/download actions are gated by `releaseReady`.
+- Removed the unresolved `ejbills/mediaremote-adapter` package, framework linkage, import, and notice from the active app. Optional pause/resume now uses public Music/Spotify scripting interfaces. No global media-key toggles, private MediaRemote framework or bundled Perl adapter. The UI states the narrower player support and exposes explicit Automation permission actions. Actual player integration still needs consented live testing.
+- Preserved the Qwen transcript-boundary fix and twelve refined writing styles. Original-text recovery remains the fallback for rejected cleanup.
+- Shared browser/CLI sales validation now requires real checkout, binary, source and terms URLs, seller identity, support address, and explicit beta disclosure. Setting `releaseReady` alone cannot enable checkout.
+- Website changed from the old €49 proposal to a planned €5 beta download with all local features included. It discloses the installation limitation. No payment flow is fabricated.
+- Local preview server serves only public website files, not repository or user files.
+- Added `scripts/package-beta.sh`: produces a binary ZIP, matching tracked-source ZIP, source revision, install guide and SHA-256 checksums. It refuses dirty tracked source and existing output archives. Nothing is uploaded automatically.
+- Added `docs/BETA-INSTALL.md` with Apple's per-app approval path; no Gatekeeper-disable or quarantine-removal commands.
 
-## Distribution blockers
+## Evidence
 
-| Area | State | Next concrete action |
-| --- | --- | --- |
-| Developer ID / notarization | Local app is ad-hoc signed. Rebuilds can invalidate TCC registrations. | Owner supplies a valid signing identity; build Release, notarize, staple, assess with Gatekeeper, test upgrades. Scripts support a hardened signing path but it has not been validated with a real identity. |
-| Media-control dependency | The exact pinned mediaremote-adapter fork lacks a clearly established project-wide license and uses private MediaRemote APIs. | Obtain documented rights for the exact revision or replace it; evaluate distribution-channel policy separately. Do not claim legal clearance from a successful link step. |
-| Models and assets | Source notices are retained; model choices have separate terms. | Review each bundled/downloaded asset and model for intended distribution. The app repository does not bundle model weights. |
-| Checkout / support | Public endpoints, seller identity and terms are not configured. | Configure and test actual checkout, receipts/refunds, support email and source archive access. |
-| Source delivery | Development repository is private. | Give binary recipients the corresponding source/build scripts; archive matching source for each release. |
-| Supported matrix | Apple Silicon local tests; no complete multi-app/macOS/hardware certification. | Test Word, ChatGPT/browser editors, TextEdit, secure fields, app switching during cleanup, multiple displays, mic disconnection, noisy rooms, long pauses, sleep/wake, and macOS 15/26. |
+Optimized Release build succeeded after an explicit nonisolated destructor avoided a Swift 6.3.3 optimizer crash in the generic cleanup race. The packaged app passes deep/strict signature verification and contains no MediaRemoteAdapter framework.
 
-## Fixed during review
+App: 418 selected tests, 414 passed, four opt-in real-model/audio tests skipped, zero failures. Website: six release/server regression tests passed, syntax checks passed, static build passed. Browser verified €5 disclosure and the closed-checkout dialog. The preceding Qwen-only change was separately exercised with the installed real model across all twelve styles and adversarial English/Greek fixtures.
 
-- Slow cleanup cannot wait forever or insert a late second result.
-- Automatic finish cannot send a message and does not end silent startup or a stream with missing audio frames.
-- Changed destination fields after deferred processing cause recovery instead of opportunistic insertion.
-- The Accessibility helper no longer closes simply because System Settings briefly disappears during another permission dialog.
-- Detailed logs are off until explicitly enabled; old inherited “always collect” behavior was removed, and common credential formats are redacted. Existing files are not deleted.
-- Public web copy no longer presents proposed pricing as a completed purchase offer or makes an untested universal speed/accuracy comparison.
+## Still required before public paid beta
 
-## Run before release
+| Item | Remaining work |
+| --- | --- |
+| Seller and checkout | Owner chooses provider and supplies public seller name, owned support email, terms/refund policy, real checkout link. Real purchase, receipt and refund tests require that account. |
+| Hosting and source delivery | Upload the binary and corresponding source together to accessible hosting; verify downloads. Private GitHub is not accessible source delivery for customers. Do not publish the repository merely because open sourcing was discussed. |
+| Live compatibility | Consent-based Music/Spotify pause/resume, Word, ChatGPT/browser editors, secure fields, app switching during cleanup, multiple displays, mic disconnection, sleep/wake, noisy rooms, and macOS 15/26 across supported hardware. Automated tests do not substitute for this matrix. |
+| Models/assets | Packaged source notices have no missing-license placeholders after adapter removal. Qwen/MLX notices are included. Downloaded speech models and API services have their own terms; review the selected distribution catalog before sales. No model weights are bundled. |
+| Installation | Test the downloaded ZIP on a different Mac/account, including quarantine, Accessibility and update behavior. This machine's existing TCC registration cannot prove a first-install experience. |
 
-1. `VocaSource/scripts/test-voca.sh` and a clean Release build from a fresh source checkout.
-2. `npm run check && npm run build` plus desktop/mobile keyboard and browser checks.
-3. Sign with Developer ID, notarize using the owner's credentials, staple the ticket.
-4. Run `scripts/release-check.sh VOCA.app` with documented dependency clearance, source URL, and support email. Environment flags alone are not evidence of legal clearance.
-5. Set real site configuration only after the above. Run `node scripts/site-release-check.mjs`.
-6. Ship a small opt-in beta, gather real latency/accuracy reports across representative speech, then open sales.
+## Verification commands
 
-Apple references: [Developer ID](https://developer.apple.com/developer-id/), [notarizing macOS software](https://developer.apple.com/documentation/security/notarizing-macos-software-before-distribution).
+- `npm test && npm run check && npm run build`
+- `VOCA_PACKAGE_CACHE=/path/to/SourcePackages VocaSource/scripts/test-voca.sh`
+- Build with Xcode configuration Release, then `VOCA_BUILD_CONFIGURATION=Release VocaSource/scripts/package-voca.sh`.
+- From a clean matching source checkout: `scripts/package-beta.sh /path/to/VOCA.app /fresh/output/directory`.
+- `VOCA_DISTRIBUTION_CHANNEL=unsigned-beta scripts/release-check.sh /path/to/VOCA.app` still requires documented dependency review and real source/support details before it reports a distribution pass.
+- `node scripts/site-release-check.mjs` intentionally fails while seller/download fields are unset.
 
-The website can be published as a clearly labeled informational preview with sales disabled. It is not a production app launch.
+A later notarized edition requires a valid Developer ID certificate, hardened signing, Apple's notary submission, stapling, and Gatekeeper verification. The standard release gate still enforces those requirements by default.
+
+References: [Apple installation guidance](https://support.apple.com/en-us/102445), [Developer ID](https://developer.apple.com/developer-id/), [GPLv3](https://www.gnu.org/licenses/gpl-3.0.html).

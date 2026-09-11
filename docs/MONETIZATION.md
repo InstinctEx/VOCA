@@ -2,7 +2,7 @@
 
 ## Recommended offer
 
-Sell a one-time paid download of a supported major version, with its bug-fix updates, a convenient signed installer, and a clearly defined support period. €49 is a proposed starting price from the existing site, not a validated price or active offer. Decide whether future major upgrades are paid separately before promising “all updates forever.” Keep the license to the purchased code perpetual; keep provider API fees separate. Do not bundle unlimited third-party AI usage into a one-time fee without a sustainable cost model.
+Sell a one-time paid download of a supported major version, with its bug-fix updates, a convenient signed installer, and a clearly defined support period. €5 is the planned beta download price, not an active offer. All local features are included; this edition is locally signed but not Apple-notarized. Decide whether future major upgrades are paid separately before promising “all updates forever.” Keep the license to the purchased code perpetual; keep provider API fees separate. Do not bundle unlimited third-party AI usage into a one-time fee without a sustainable cost model.
 
 VOCA’s distinctive promise is a patient, recoverable writing workflow: personal style, destination awareness, original-word fallback, and a compact native interface. Sell that experience and maintenance, not exclusivity over inherited open-source code.
 

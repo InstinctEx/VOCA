@@ -330,12 +330,6 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 ========================================================================
-mediaremote-adapter
-https://github.com/ejbills/mediaremote-adapter
-Revision: 78aae86c03adab11a7b352211cc82381737cf854
-Notice not found in the local checkout; review before distribution.
-
-========================================================================
 path.swift
 https://github.com/mxcl/Path.swift
 Revision: 8e355c28e9393c42e58b18c54cace2c42c98a616

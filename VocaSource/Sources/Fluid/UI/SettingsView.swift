@@ -873,13 +873,17 @@ struct SettingsView: View {
 
                                     self.optionToggleRow(
                                         title: "Pause Media During Transcription",
-                                        description: "Automatically pause currently playing audio/video when transcription starts. Resumes only if VOCA paused it.",
+                                        description: "Pause Music and Spotify when recording starts. Resumes the same track only if VOCA paused it. Open the player, then allow access below. Other players and browser audio are not controlled.",
                                         isOn: Binding(
                                             get: { SettingsStore.shared.pauseMediaDuringTranscription },
                                             set: { SettingsStore.shared.pauseMediaDuringTranscription = $0 }
                                         )
                                     )
                                     .settingsSearchTarget(.pauseMedia)
+                                    HStack {
+                                        Button("Allow Music") { MediaPlaybackService.requestAccess(to: "com.apple.Music") }
+                                        Button("Allow Spotify") { MediaPlaybackService.requestAccess(to: "com.spotify.client") }
+                                    }.buttonStyle(.borderless)
                                     Divider().opacity(0.2)
 
                                     DictionarySuggestionsSettingsRow()

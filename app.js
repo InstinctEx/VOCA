@@ -1,4 +1,6 @@
 import { siteConfig } from './config.js';
+import { releaseProblems } from './release-config.js';
+const salesEnabled = releaseProblems(siteConfig).length === 0;
 
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => [...document.querySelectorAll(selector)];
@@ -137,11 +139,12 @@ $('#open-interactive').addEventListener('click',()=>{
 function showInfo(title,message){$('#info-title').textContent=title;$('#info-text').textContent=message;$('#info-dialog').showModal();}
 $('#info-done').addEventListener('click',()=>$('#info-dialog').close());
 $('.purchase-button').addEventListener('click',()=>{
-  if(siteConfig.releaseReady && siteConfig.checkoutUrl){window.location.assign(siteConfig.checkoutUrl);return;}
-  showInfo('A little more headspace is on its way.','VOCA is in preview. Purchases open after signing, notarization, licensing review, and support setup. The displayed price is proposed; optional AI API costs are separate.');
+  if(salesEnabled){window.location.assign(siteConfig.checkoutUrl);return;}
+  showInfo('A little more headspace is on its way.','VOCA is in preview. The planned €5 download includes all local features. This beta is not Apple-notarized and may need manual approval in macOS Privacy & Security. Purchases open after download, source delivery, and seller details are verified. Optional AI API costs are separate.');
 });
-if(siteConfig.releaseReady && siteConfig.downloadUrl){
+if(salesEnabled){
   const link=document.createElement('a');link.href=siteConfig.downloadUrl;link.className='download-link';link.textContent='Already own Voca? Download for Mac';$('.price-card').append(link);
+  for (const [label, url] of [['Matching source (GPLv3)', siteConfig.sourceUrl], ['Purchase terms', siteConfig.termsUrl]]) { const a=document.createElement('a');a.href=url;a.className='download-link';a.textContent=label;$('.price-card').append(a); }
 }
 $$('[data-info]').forEach(button=>button.addEventListener('click',()=>{
   if(button.dataset.info==='privacy')showInfo('Your privacy, here.','This page doesn’t use your microphone, store your dictation, or run analytics. The demos use sample text. Details about the Mac app’s data handling will be provided with its release.');

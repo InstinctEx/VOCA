@@ -18,6 +18,10 @@ enum VocaCleanupError: LocalizedError, Equatable {
     var operation: Task<Void, Never>?
     var watchdog: Task<Void, Never>?
     init(_ continuation: CheckedContinuation<Value, Error>) { self.continuation = continuation }
+    // Destruction has no actor-bound work. Explicit isolation avoids a Swift
+    // 6.3.3 EarlyPerfInliner crash in the synthesized generic destructor.
+    nonisolated deinit {}
+
     func finish(_ result: Result<Value, Error>) {
         guard let continuation else { return }
         self.continuation = nil
