@@ -141,3 +141,7 @@ See [monetization and license plan](docs/MONETIZATION.md) for checkout, purchase
 Read [release readiness](docs/RELEASE-READINESS.md) and [the current application review](VocaSource/VOCA-PERSONAL-REVIEW.md). The important remaining work is stable signing/notarization, dependency/model rights, supported-device live tests, and real support/checkout infrastructure. Then a small beta. Then sales.
 
 Beautiful buttons are nice. A customer’s words arriving intact is the business.
+
+## Private development repository
+
+[InstinctEx/VOCA](https://github.com/InstinctEx/VOCA) contains the source snapshot, website, tests and these documents. Repository visibility is private. The original website workspace remote was preserved; the upload checkout is `.release-repo/`. Do not include build caches, recordings or credentials when updating it.
