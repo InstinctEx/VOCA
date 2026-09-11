@@ -2,6 +2,16 @@
 
 **Your voice. Your pace. Your Mac.**
 
+## ♡ Support VOCA
+
+**[Support VOCA on Ko-fi →](https://ko-fi.com/instinctex)**
+
+VOCA is free, open source, and supported by people who find it useful. If it saves you time, a donation helps fund development, testing on more Macs, and future Apple signing and notarization.
+
+**Donations are entirely optional. Every feature and the prebuilt download remain free.**
+
+---
+
 Native macOS dictation for people whose best sentence occasionally starts with “um, wait.” Speak into the app you're already using, choose your speech model, and add optional local or cloud text cleanup.
 
 [Source](https://github.com/InstinctEx/VOCA) · [Report a bug](https://github.com/InstinctEx/VOCA/issues) · [Build it yourself](#install-or-build) · [Installation guide](docs/BETA-INSTALL.md)
