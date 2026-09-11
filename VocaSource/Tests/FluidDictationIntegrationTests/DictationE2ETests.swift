@@ -2280,6 +2280,9 @@ extension DictationE2ETests {
     }
 
     func testPrivateAIProviderLocalRuntimeDoesNotConfigureNonFluidProvider() {
+        let configurations = SettingsStore.shared.dictationPromptConfigurations
+        SettingsStore.shared.dictationPromptConfigurations = [:]
+        defer { SettingsStore.shared.dictationPromptConfigurations = configurations }
         self.withRestoredDefaults(
             keys: [
                 self.privateAILocalModelPathKey,
@@ -2641,6 +2644,10 @@ extension DictationE2ETests {
     }
 
     private func withPromptAndProviderSettingsRestored(run: () -> Void) {
+        // Provider routing tests must not inherit the owner's saved Everyday model.
+        let configurations = SettingsStore.shared.dictationPromptConfigurations
+        SettingsStore.shared.dictationPromptConfigurations = [:]
+        defer { SettingsStore.shared.dictationPromptConfigurations = configurations }
         self.withRestoredDefaults(
             keys: [
                 self.dictationPromptProfilesKey,

@@ -104,3 +104,7 @@ Built-in Apple Silicon enhancement using Qwen3-4B-Instruct-2507 (4-bit) and MLX 
 ## Custom Qwen writing styles
 - Verified VOCA Polish is now available in the custom-style provider picker, with its verified local model selected automatically.
 - The fixed preset explains where to create custom Qwen instructions.
+
+## Local cleanup instruction boundary and writing templates
+
+Reproduced and corrected Qwen answering dictated instructions instead of editing them. Transcript input is serialized as data, chat-control delimiters are escaped, editing examples preserve requests and speaking roles, and a conservative assistant-reply check falls back to original words. Refined all twelve writing templates without overwriting saved custom instructions. Added real-model adversarial fixtures and isolated provider-routing tests from saved Everyday model selections. See docs/TRANSCRIPT-BOUNDARY.md for scope and limitations.

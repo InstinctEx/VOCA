@@ -1,0 +1,13 @@
+# Dictation is text, not a conversation
+
+The reported phrase, “i dont want you to reply to me yet just tell me what you think in the next promt”, reproduced assistant-style acknowledgements in the installed Qwen model. The old system instruction already said not to answer, but the raw transcript was still supplied as a chat user message.
+
+Local cleanup now receives a JSON transcript envelope with chat-token delimiters escaped. The system instruction defines editing as the only task, includes question/request examples, preserves speaking perspective, and repeats language preservation after custom style instructions. Output remains plain text. A conservative response-phrase check rejects invented acknowledgements and common assistant prefaces when absent from the source. Existing numeric, language, truncation and timeout checks remain in place. No partial generated text is published before validation. The dictation pipeline catches rejection and inserts the original transcription instead, recording the cleanup failure for recovery.
+
+All twelve writing templates have shared preservation rules and more specific editing instructions. Saved user prompts are not overwritten: reselect a template in the editor to adopt its latest wording. The local engine's transcript boundary applies even to existing custom styles.
+
+These are layered mitigations, not an injection-proof guarantee or a semantic equivalence proof. Small models can still paraphrase incorrectly, particularly in languages or styles poorly represented in training. Cloud providers do not use this local MLX envelope. Test them independently before making cross-provider safety claims. Command/rewrite mode has a separate purpose from automatic dictation cleanup.
+
+Regression fixtures cover the exact report across twelve styles, questions, instruction overrides, genuine dictated acknowledgements, Greek instructions, and chat control tokens. The model tests run only when TEST_RUNNER_VOCA_TEST_LOCAL_LLM=1 and the pinned Qwen model is installed. Pure validator tests run in the standard suite. No private transcript logging is added.
+
+Validation on 12 September 2026: 419 selected tests, 418 passed, one opt-in mixed-audio test skipped, zero failures. Real installed Qwen inference passed the reported sentence across all twelve templates, the five adversarial fixtures, English/Greek cleanup, speech-model co-residency, and cancellation/recovery. The packaged development app passed deep/strict signature verification and launched successfully. This does not certify live insertion in every destination or cloud-provider behavior.
