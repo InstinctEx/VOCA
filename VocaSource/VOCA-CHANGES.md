@@ -100,3 +100,7 @@ Built-in Apple Silicon enhancement using Qwen3-4B-Instruct-2507 (4-bit) and MLX 
 - Listener health changes now update Settings directly, including delayed success and a disabled tap.
 - Removed a competing three-second startup reset; recovery checks run every five seconds after setup finishes.
 - Replaced endless initializing indicators with an unavailable message and a Restart listener action. Active listeners also expose a restart action.
+
+## Custom Qwen writing styles
+- Verified VOCA Polish is now available in the custom-style provider picker, with its verified local model selected automatically.
+- The fixed preset explains where to create custom Qwen instructions.

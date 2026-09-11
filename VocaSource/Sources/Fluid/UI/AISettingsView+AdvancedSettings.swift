@@ -1605,7 +1605,7 @@ extension AIEnhancementSettingsView {
                             }())
                                 .font(.system(size: 24, weight: .bold))
                             if mode.isPrivateAI {
-                                Text("Built-in system prompt. Only the shortcut can be customized.")
+                                Text("This built-in preset is fixed. For your own Qwen instructions, choose Writing Styles → New Style → Custom instructions, then select VOCA Polish as the provider.")
                                     .font(.caption)
                                     .foregroundStyle(self.theme.palette.secondaryText)
                             } else if mode.isDefault {

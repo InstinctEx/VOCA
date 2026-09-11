@@ -1233,6 +1233,9 @@ final class AIEnhancementSettingsViewModel: ObservableObject {
     }
 
     func models(for providerID: String) -> [String] {
+        if providerID == "voca-polish", let model = PrivateAIProviderPromptFormat.verifiedModelID(settings: self.settings) {
+            return [model]
+        }
         let key = self.providerKey(for: providerID)
         if let cached = self.availableModelsByProvider[key], !cached.isEmpty {
             return cached
@@ -1247,6 +1250,9 @@ final class AIEnhancementSettingsViewModel: ObservableObject {
     }
 
     func selectedModel(for providerID: String) -> String {
+        if providerID == "voca-polish" {
+            return PrivateAIProviderPromptFormat.verifiedModelID(settings: self.settings) ?? ""
+        }
         let key = self.providerKey(for: providerID)
         let stored = (self.selectedModelByProvider[key] ?? "")
             .trimmingCharacters(in: .whitespacesAndNewlines)
@@ -1931,7 +1937,7 @@ final class AIEnhancementSettingsViewModel: ObservableObject {
 
     func verifiedPromptProviders() -> [ProviderItemData] {
         self.cachedVerifiedProviderItems.filter { provider in
-            provider.id != PrivateAIProviderFeature.shared.providerID
+            provider.id == "voca-polish" || provider.id != PrivateAIProviderFeature.shared.providerID
         }
     }
 

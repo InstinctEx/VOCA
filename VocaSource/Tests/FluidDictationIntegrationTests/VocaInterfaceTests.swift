@@ -5,6 +5,14 @@ import XCTest
 
 @MainActor
 final class VocaInterfaceTests: XCTestCase {
+    func testVerifiedLocalQwenAppearsInCustomPromptProviders() {
+        let viewModel = AIEnhancementSettingsViewModel(settings: .shared, menuBarManager: MenuBarManager(), promptTest: .shared)
+        viewModel.cachedVerifiedProviderItems = [.init(id: "voca-polish", name: "VOCA Polish", isBuiltIn: true)]
+        XCTAssertEqual(viewModel.verifiedPromptProviders().map(\.id), ["voca-polish"])
+        viewModel.cachedVerifiedProviderItems = []
+        XCTAssertTrue(viewModel.verifiedPromptProviders().isEmpty)
+    }
+
     func testHotkeyInitializationStopsRetryingAfterFiveFailures() async throws {
         let manager = GlobalHotkeyManager(asrService: ASRService(), primaryShortcuts: [], promptModeShortcut: .init(keyCode: 15, modifierFlags: [.option]), commandModeShortcut: nil, rewriteModeShortcut: .init(keyCode: 15, modifierFlags: [.option]), promptModeShortcutEnabled: false, commandModeShortcutEnabled: false, rewriteModeShortcutEnabled: false, initializeAutomatically: false)
         var attempts = 0
