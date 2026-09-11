@@ -1,0 +1,22 @@
+# Build products and machine-local state
+DerivedData/
+SourcePackages/
+.build/
+.swiftpm/
+build/
+xcuserdata/
+*.xcuserstate
+.DS_Store
+*.log
+*.profraw
+*.app/
+.env*
+*.key
+*.pem
+*.p12
+*.p8
+*.mobileprovision
+*.keychain*
+*.gguf
+*.safetensors
+# Keep source, scripts, documentation, fixtures and attribution versioned.

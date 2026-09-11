@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleExecutable</key>
+	<string>$(EXECUTABLE_NAME)</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleDisplayName</key>
+	<string>$(PRODUCT_NAME)</string>
+	<key>CFBundleName</key>
+	<string>$(PRODUCT_NAME)</string>
+	<key>CFBundleIdentifier</key>
+	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+	<key>CFBundleVersion</key>
+	<string>2</string>
+	<key>CFBundleShortVersionString</key>
+	<string>0.1.0</string>
+	<key>LSMinimumSystemVersion</key>
+	<string>$(MACOSX_DEPLOYMENT_TARGET)</string>
+	<key>LSApplicationCategoryType</key>
+	<string>public.app-category.productivity</string>
+	<key>NSAccessibilityUsageDescription</key>
+	<string>VOCA needs Accessibility permission to listen for global hotkeys and type text into other apps when you stop recording.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>VOCA needs microphone access to record your voice for speech-to-text transcription. Your selected speech service determines where audio is processed. Local models process audio on this Mac; Apple Speech may use Apple services.</string>
+	<key>LSUIElement</key>
+	<false/>
+	<key>NSAppleEventsUsageDescription</key>
+	<string>VOCA needs permission to control system events for managing launch at startup settings.</string>
+	<key>POSTHOG_API_KEY</key>
+	<string></string>
+	<key>POSTHOG_HOST</key>
+	<string>https://eu.i.posthog.com</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>VOCA uses Apple Speech to transcribe your voice. Depending on availability, Apple may process audio on this Mac or through its speech service.</string>
+</dict>
+</plist>

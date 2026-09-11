@@ -1,0 +1,67 @@
+# VOCA — original FluidVoice foundation
+
+Upstream commit: 42e33e68ec473129ad090521e56c22c912a16db3 (GPLv3).
+
+This is a fresh export of the original source. VocaNative is retired; none of its dictation, shortcut, model, or provider implementations are used here.
+
+Changes: VOCA app identity and artwork, refreshed shared theme, navigation icons, feature search with clear control, isolated bundle/keychain identity, and a guard against installing upstream releases over VOCA.
+
+Original speech models, API providers, AI enhancement, custom shortcuts, target insertion, notch/bottom overlay, dictionary, file transcription, history, audio controls, and settings are retained.
+
+The upstream private Fluid Intelligence runtime is not included in the public repository. Its existing conditional integration is retained; no replacement runtime is claimed. VOCA automatic updates need a separate release channel.
+
+## Purple glass design
+
+Fixed the sidebar overlap by placing its header and footer outside the scroll view. Added native macOS 26 glass with material and reduced-transparency fallbacks, a muted purple default, quieter navigation, and an Overlay appearance preview. The compact recording pill shows the destination icon and live waveform; enabled live preview appears in a separate transcript strip. Larger overlay options remain available. Recognition, insertion, provider networking, and shortcut handling are unchanged by this design update.
+
+Validation: application build and signature verification succeeded; 124 selected upstream regression tests passed. Sidebar layout and Overlay appearance preview were checked in the running application. Live recording was not exercised during this visual pass.
+
+## Notch dictation
+
+The first launch of this update selects MacBook Notch / Icon & Waveform. Dictation opens around the physical camera notch using the original DynamicNotchKit controller, with a destination icon, lavender audio-reactive bars, and a softer opening animation that respects Reduce Motion. Empty live previews no longer reserve a blank strip. The notched display stays the anchor when using an external monitor; closed-lid and notchless setups retain the upstream floating fallback. Bottom placement and expanded controls remain selectable in Overlay settings.
+
+Validation: build and signature verification passed; 108 existing shortcut and settings navigation tests passed. Live microphone recording remains unverified because this ad-hoc build reports missing permissions.
+
+## Native page interiors
+
+Replaced the inherited Overview checklist with a readiness panel, shortcut display, navigation tiles, and practice editor. Rebuilt Speech Models as a searchable library with visible download/activation controls, progress, cancellation, language selection, and a model detail sheet. Writing Styles uses quiet style rows, a simpler editor, and expandable routing/advanced settings. Dictionary separates phrases, vocabulary, and punctuation; typed phrase entry is the initial composer, with voice training still available. Provider connections use a single scrolling list. File transcription, Command Mode, Usage, and shared panels follow the same spacing and typography. Native macOS 26 glass is used for controls, with earlier-system fallbacks.
+
+The notch now contracts through DynamicNotchKit before its panel is removed. Completion returns immediately to the insertion pipeline, and generation checks protect a newer recording from an old hide task. Packaged binaries no longer search the development PackageFrameworks folder.
+
+Validation: 126 regression tests passed, including two new notch lifecycle tests. Final builds and deep signature checks passed. Overview, model search/details, dictionary, style editor, and provider navigation were inspected in the running app. No speech recordings, provider keys, downloaded models, or saved phrases were added during UI verification; microphone dictation was not re-tested.
+
+## Ink appearance and native blue
+
+Adopted native adaptive blue as the default accent, with a one-time migration from the previous palette. Replaced purple/gray content surfaces with deep ink-blue dark surfaces and paired soft-white light surfaces. Corrected the main detail background that had masked the theme. Removed decorative title glass tiles, made unselected navigation symbols neutral, and changed the notch waveform to white. Added stronger secondary text colors and opaque, outlined shared surfaces for accessibility preferences. The recognition, insertion, shortcuts, and notch timing code were not modified in this appearance update.
+
+Validation: final application build, packaging, and deep signature verification passed. Light and dark appearances were inspected, including the model library and a narrower window. The practice button uses an explicit white label, and Overview navigation cards reserve equal text space. Color-pair measurements and review limits are documented in VOCA-APPEARANCE-REVIEW.md. The final rebuilt copy reports that Microphone and Accessibility access need enabling again; dictation was not re-tested during this pass.
+
+## Glass, motion, product identity, and application review — September 11, 2026
+
+VOCA Preview 0.1.0 (2) adds interactive navigation glass, brief page/status transitions, consistent Settings entry/exit, native window animation, and reduced-motion handling. The native practice editor aligns placeholder and cursor using TextKit and preserves selections during bound updates. Shared button labels, the style sheet, and compact Settings rows were refined.
+
+What’s New and Help now describe VOCA. Upstream support, release, sponsorship, and feedback destinations were removed from product flows; feedback and history examples export locally. The inherited analytics key was removed and VOCA analytics are disabled at the configuration boundary. GPL provenance is preserved and dependency notices are bundled. GitHub labels/templates use VOCA; the internal Swift module names remain compatible.
+
+Validation: 360 distinct selected regression tests passed. Builds, packaging, deep signature verification, workflow YAML parsing, policy JavaScript syntax, native editing, feedback export, searches, and main-screen navigation were checked. See VOCA-REVIEW.md for the exact limits, remaining product issues, and commercial-distribution blockers. Live microphone capture and cross-app insertion need revalidation after stable signing and permissions. This preview is not a commercially cleared release.
+
+
+## September 11, 2026 — Cursor and workflow pass
+
+- Added a compact cursor-anchored recording pill. It uses Accessibility caret bounds, stays within the display work area, follows the captured field, and falls back to the screen edge when bounds are unavailable.
+- Added destination verification using a clearly labeled test phrase in a chosen running app. Protected fields, selected text, changed focus, missing permission, and unverifiable results receive distinct explanations. Nothing is submitted.
+- Added an in-memory last-insertion receipt and recovery controls. Undo changes only the verified inserted range, restores replaced text, preserves later appends, and refuses other document edits. It never sends a blind Command-Z.
+- Added Quick Controls (Command-K and menu-bar entry) for installed models, microphones, writing styles, and recovery. Changes use the existing services and are blocked while recording or preparing a model.
+- Added a local Accelerate hardware benchmark with a memory/architecture-aware model recommendation, plus a bundled-speech timing check for installed local models. Speed measurements are separated from accuracy claims.
+- Rebuilt the phrase library as a searchable inline list; replaced the training ring with a small sample progress indicator. Added Natural, Concise, Email, and Notes writing templates with an advanced prompt editor.
+- Made History switch to a list/detail flow in narrow windows. Usage now leads with estimated time saved and trends; milestones and records are collapsed.
+- Refined Settings with native groups, on-demand explanations, shorter copy, wrapping labels, and collapsible secondary options. Permission setup links to a real destination check.
+- Fixed a startup hang from interactive Keychain reads. Reads during startup fail promptly when access is unavailable; explicit unlocking occurs in the background. Failed migrations retain their source keys, and an unreadable aggregate cannot be overwritten.
+
+## September 11, 2026 — Personal voice and patient finishing (0.2.0 preview)
+
+- Expanded writing templates to twelve; added locally inferred, reviewable personal style from explicitly provided examples. Raw examples are not persisted or sent as prompt content.
+- Added optional pause-aware finish with 3/7/12-second thinking time, a three-second countdown, speech reset, extra time for some unfinished English phrases, and per-recording keep-listening. Automatic finish does not submit messages.
+- Added slow-cleanup feedback at eight seconds, original-word bypass, a thirty-second deadline, and suppression of late responses. Deferred results check the original destination before insertion.
+- Restored and redesigned the floating Accessibility app-drag helper. It stays open during transient System Settings dialogs.
+- Made detailed diagnostics explicitly opt-in; redacted common credential formats. Corrected Apple Speech privacy copy to reflect possible Apple service processing.
+- Added release-signing configuration, read-only release gates, a reproducible selected regression script, a private-source repository layout, and truthful website feature/benchmark copy. Public sales remain disabled until release prerequisites are met.
