@@ -2,157 +2,113 @@
 
 **Your voice. Your pace. Your Mac.**
 
-A native macOS dictation app for people whose best sentence occasionally starts with “um, wait.”
+Native macOS dictation for people whose best sentence occasionally starts with “um, wait.” Speak into the app you're already using, choose your speech model, and add optional local or cloud text cleanup.
 
-VOCA puts words where you write, gives you room to think, and lets you choose the speech model and cleanup provider. It does not need a dashboard to explain that you are talking. Humanity has had a reasonably successful beta of talking already.
+> **Status: locally signed beta; repository currently private.**
+> The optimized app builds and runs, but it is **not Apple-notarized**. Public downloads and purchases are not live. The planned offer is **€5 for the prebuilt beta with all local features included**; optional cloud API usage is separate. See [installation](docs/BETA-INSTALL.md) and [release status](docs/RELEASE-READINESS.md).
 
-> **Status: private development preview. Not cleared for public app distribution.**
-> The website builds and can be reviewed as a preview. Purchases remain disabled. See [release readiness](docs/RELEASE-READINESS.md) before putting a download or checkout in front of customers.
+## The parts that make it VOCA
 
-## What makes it VOCA?
-
-VOCA is a GPLv3 fork of [FluidVoice](https://github.com/altic-dev/Fluid-oss), based on commit `42e33e68ec473129ad090521e56c22c912a16db3`. Its speech/provider foundations remain. The VOCA work is the redesigned native interface and the surrounding experience: permission guidance, destination verification, conservative recovery, personal style, patient finishing, and an escape route from slow AI.
-
-Credit is not a UI bug. We keep the original copyright notices. The app can have its own character without pretending its grandparents do not exist.
-
-| The daily annoyance | VOCA’s answer |
+| The daily annoyance | VOCA's answer |
 | --- | --- |
-| “Did it type into the right app?” | Destination icon, a guided insertion checker, and guarded delayed delivery. |
-| “I paused to think.” | Optional 3/7/12-second thinking time, then a 3-second countdown. Resume speech to reset; tap to keep listening. |
-| “This sounds like an HR department wrote it.” | Twelve templates plus **Sounds like me**, a local analysis of writing examples you choose. |
-| “The AI is still thinking about a five-word email.” | A warning after 8 seconds, an immediate original-words option, and a 30-second cleanup deadline. |
-| “Undo ate the words I typed afterward.” | Verified range-based undo preserves later appends and refuses uncertain edits. |
-| “Which model should I download?” | A Mac compute check and real timing for an installed local speech model. |
-| “Where was that setting again?” | **⌘K**: model, microphone, and writing style in one small chooser. |
-| “Why does my dictation app need a trophy room?” | Usage leads with estimated time saved and trends. Milestones can stay folded. |
+| “Where are my words going?” | Destination app icon, insertion checker, and guarded delivery after delayed processing. |
+| “I paused to think.” | Optional 3/7/12-second thinking time, followed by a three-second countdown. Speaking resets it. |
+| “This sounds like an HR department wrote it.” | Twelve editable writing templates, custom prompts, and a personal style derived locally from examples you provide. |
+| “The AI is still considering my five-word email.” | Slow-cleanup warning after eight seconds, use-original-now control, and a thirty-second deadline. |
+| “Undo deleted my next sentence.” | Verified insertion recovery preserves subsequent appends; uncertain edits are refused. |
+| “Where did that setting go?” | Quick controls for model, microphone, and writing style. |
+| “Why does my dictation app need a trophy room?” | Measured speaking pace, estimated time saved, and activity trends; milestones stay optional. |
 
-This combination is our product position, not proof that every competitor lacks these features. Other apps also support local models and custom workflows. We have not run a controlled competitor accuracy or latency comparison. We are selling a thoughtful workflow, not an imaginary gold medal.
+The interface uses SwiftUI/AppKit, native glass where available, and a compact waveform at the notch, screen edge, or near the caret. Precise placement and insertion depend on the destination app's Accessibility support. Automatic finish never presses Send. Quiet is a clue, not a mind-reading API.
 
-## VOCA Polish: the server is your Mac
+## Local cleanup: the server is your Mac
 
-Built-in Qwen3-4B-Instruct-2507, 4-bit, powered by MLX Swift. A 2.28 GB verified download gives Apple Silicon Macs local text enhancement without installing Ollama, opening a terminal, or finding an API key in a drawer. Your writing styles work with it; the model gets no tools or network access for inference.
+**VOCA Polish** uses Qwen3-4B-Instruct-2507, 4-bit, through MLX Swift. Download the model once—approximately **2.28 GB**—and enhance offline without an API key, Ollama, or another companion app. Apple Silicon is required; 16 GB memory is recommended alongside speech recognition.
 
-Pause/resume downloads, memory release, a local sample editor with timing, and original-word recovery are included. 16 GB memory is recommended alongside speech recognition. See [setup and exact limits](VocaSource/docs/VOCA-POLISH.md). No, a model running locally does not magically become incapable of making mistakes.
+The model gets no tools or network access for inference. Downloads can resume, memory can be released, and a sample editor shows local results and timing. Model weights are **not included in the app ZIP**. See [local-model setup](VocaSource/docs/VOCA-POLISH.md).
+
+A recent bug made cleanup answer a dictated request instead of editing it. The local engine now uses a transcript-data envelope, escaped chat delimiters, editing examples, and conservative output checks. Rejected cleanup falls back to original words. We tested the reported phrase across all twelve templates, plus questions and English/Greek instruction-like text. This is a mitigation, not a claim that a language model can never make a mistake. [Technical notes](VocaSource/docs/TRANSCRIPT-BOUNDARY.md).
 
 ## Writing styles
 
 Natural · Concise · Email · Notes · Friendly · Professional · Straight to it · Technical · Journal · Social post · Meeting recap · Formal.
 
-Templates are editable starting points. They instruct cleanup to preserve facts and avoid inventing details. A prompt is still not a guarantee: review important writing.
+Templates are editable starting points, not twelve locked personalities. Create a style in **Writing Styles → New Style → Custom instructions**, select VOCA Polish or a configured provider, then choose it for dictation. Reselect a template to adopt its latest instructions; updates do not overwrite your saved custom prompts.
 
-**Sounds like me** needs at least 80 words of examples. It measures sentence length, paragraphing, casing, contractions, and some punctuation patterns entirely on the Mac. It saves only the reviewed style instructions through the existing style editor; it does not save or send the example text. It is a transparent heuristic, not a secretly trained model of your soul. A selected cloud cleanup provider receives the resulting instructions with future dictations.
-
-## The pause contract
-
-Automatic finish is **off by default**. Enable it in Settings → Dictation. Thoughtful mode waits 12 seconds of quiet, then gives you another 3 seconds. A few unfinished English endings get extra time. A short noise spike or silent startup does not arm it, and missing audio frames cannot complete the timer.
-
-It applies to toggle-mode dictation, not command/edit modes or training. Speaking resets the countdown; clicking it disables automatic finish for that recording. Automatic finish never dispatches Send. There is no reliable way to infer “I am done thinking” from silence alone. We prefer admitting that to interrupting your next great idea with confidence.
+**Sounds like me** analyzes at least 80 words of examples locally for sentence length, paragraphing, casing, contractions and punctuation. It saves the style instructions you review, not the example text. No background typing surveillance; your personality is not a telemetry event. If you later use a cloud cleanup provider, it receives the saved instructions with the text to process.
 
 ## Measurements, with the footnotes still attached
 
-| Metric | Evidence / limitation |
+| Measurement | What was actually checked |
 | --- | --- |
-| **30.6× realtime** | Parakeet TDT v3; bundled 1.2-second sample; approximately 0.04s median of 3 warm runs; 16 GB, 10-core Apple Silicon Mac; Sept 11, 2026. Not an accuracy benchmark or a prediction for all recordings. |
-| **12 templates** | Implemented prompt presets, alongside custom and personal styles. |
-| **3 overlay positions** | MacBook notch, screen edge, and near the typing cursor. AX support determines caret placement. |
-| **8s / 30s** | Dictation cleanup warning / original-words fallback thresholds, not advertised latency targets. |
-| **407 selected tests** | Current local regression target, including pause behavior, late-result suppression, personal-style sample privacy, diagnostic opt-in, and existing dictation/provider/shortcut coverage. See the dated review for the completed run. |
-| **Live insertion + undo** | TextEdit: inserted at the cursor, appended more text, undid only the insertion. Other apps need their own checks. |
+| **About 20 MiB ZIP / 57 MiB installed** | September 12 beta after removing debug/local executable symbols, down from roughly 27 / 108 MiB. Global/exported symbols and runtime resources retained. Model downloads are additional. |
+| **3.38 seconds** | One local Qwen sample in the smaller packaged app on a 16 GB Apple Silicon Mac. A smoke check, not a general latency promise. |
+| **30.6× realtime** | Parakeet v3, 1.2-second bundled sample, median of three warm runs, 16 GB/10-core Apple Silicon, September 11. Not an accuracy benchmark or competitor comparison. |
+| **414 app tests passed** | September 12 regression run: 418 selected, four opt-in model/audio tests skipped, zero failures. Real Qwen adversarial tests were run separately for the preceding cleanup fix. |
+| **Six website tests passed** | Release configuration and preview-server file isolation; syntax checks and static build also passed. |
 
-There are no invented “99.9% accuracy” claims here. The spreadsheet was devastated.
+English/Greek switching is improved when speech contains a pause. Seamless code-switching, every destination app, and every supported Mac are not certified. We have not measured competitor accuracy. There are no invented “99.9%” claims here. The spreadsheet was devastated.
 
-## Existing capabilities retained
+## Other capabilities
 
-- Speech model library/downloads; Whisper, Parakeet and other upstream-supported engines, subject to hardware/model compatibility.
-- Configurable API and local-server cleanup providers, including compatible OpenAI-style endpoints. API usage is billed by the provider; a chat subscription does not automatically include API credits.
-- Custom shortcuts, per-app prompt routing, manual text insertion, dictionary learning, vocabulary boosts, punctuation rules, file transcription, history, and original command/edit capabilities.
-- Native blue/ink surfaces, Liquid Glass where supported, reduced-motion handling, compact notch/cursor indicators, and responsive list/detail layouts.
-- Microphone/Accessibility setup and a draggable copy of the **actual running app** in the floating permission helper.
+- Downloadable speech engines including Whisper and Parakeet, subject to model/hardware compatibility.
+- Local Qwen, configurable cloud cleanup, and compatible local-server endpoints. A chat subscription does not automatically include API credits.
+- Custom shortcuts, per-app style routing, dictionary/vocabulary tools, punctuation rules, and file transcription.
+- History, separate audio-retention controls, export/backup, microphone selection and local diagnostics.
+- Optional pause/resume for **Music and Spotify**, through their public scripting interfaces. Open the player and use **Allow Music / Allow Spotify** in settings. Other players and browser media are not controlled. The unresolved private MediaRemoteAdapter dependency has been removed.
 
-The private Fluid Intelligence runtime is not present in the upstream public source. Its conditional integration remains; local cleanup through configured local servers is separate. No claim is made that every available model or paid endpoint has been live-tested.
+## Install or build
 
-## Privacy, in plain words
+The current beta targets **Apple Silicon, macOS 15 or newer**. Native Liquid Glass requires macOS 26. Local testing is on macOS 26.4.1; the broader hardware/OS matrix remains open.
 
-On-device speech processing works locally after downloading a compatible model. Cloud services receive the content needed for the service you choose. History and audio storage are separate settings. Detailed diagnostics are now explicitly opt-in, off by default; they can contain dictated text and app context. Common credential patterns are redacted, but review logs before sharing. Older log files are not silently erased.
+A prebuilt download needs no Xcode. An unnotarized download may require manual approval in **System Settings → Privacy & Security**. Microphone/Accessibility setup is still necessary; ad-hoc updates can require renewed permission. Follow [Apple's guidance](https://support.apple.com/en-us/102445), not a random command that disables Gatekeeper.
 
-Personal-style examples stay in the editor’s memory and are cleared after creating a draft. VOCA does not install a passive typing collector for this feature. The inherited telemetry configuration is disabled in this preview. Website illustrations do not request a microphone and the site has no analytics.
-
-## Repository map
-
-```text
-VocaSource/        Active Swift/SwiftUI/AppKit app, original notices and tests
-VocaSource/scripts/ Build, package, and selected regression runner
-index.html        Product website
-styles.css        Website presentation
-app.js            Accessible demo and website interactions
-config.js         Preview / checkout / download / support configuration
-public/assets/    Website assets and font notices
-scripts/          Read-only release gates
- docs/            Release, monetization, and product notes
-```
-
-Compiled apps, retired prototypes, downloaded models, user recordings, local databases, credentials, signing keys, and DerivedData are intentionally excluded. Your private repository is not a 12-gigabyte scrapbook of Xcode’s feelings.
-
-## Build the Mac app
-
-Use Xcode with the macOS 26 SDK. The app deployment target is macOS 15; native Liquid Glass is conditional on macOS 26. The current live checks were on Apple Silicon/macOS 26.4.1. Intel and macOS 15 require release testing.
+To build from source, use Xcode with the macOS 26 SDK and Metal toolchain:
 
 ```sh
 xcodebuild -downloadComponent MetalToolchain
 cd VocaSource
-./build-voca.sh
+VOCA_BUILD_CONFIGURATION=Release ./build-voca.sh
 ./scripts/test-voca.sh
 ```
 
-Swift packages download on a clean build. `VOCA_PACKAGE_CACHE` can point to an existing package checkout cache. The product remains `../VOCA.app`; internal Xcode scheme/module names retain their upstream names to avoid destabilizing the implementation.
+Packages download on a clean build. `VOCA_PACKAGE_CACHE` can point to an existing SourcePackages cache. The app is produced at `../VOCA.app`, locally signed without a paid Apple Developer account. Internal scheme/module names retain upstream names.
 
-Local packages use an ad-hoc signature. Rebuilding can invalidate Accessibility/Microphone registrations. The permission helper points to the running build. Public releases require your own Developer ID identity:
+Release packaging strips debug/local executable symbols and re-signs the result; retain Xcode's separate dSYM locally when available. From a clean, committed checkout matching the app:
 
 ```sh
-VOCA_BUILD_CONFIGURATION=Release \
-SIGNING_IDENTITY='Developer ID Application: YOUR VERIFIED IDENTITY' \
-./build-voca.sh
+scripts/package-beta.sh /path/to/VOCA.app /fresh/output/directory
 ```
 
-That command signs; it does **not** notarize or certify redistribution rights. Release signing uses the hardened runtime and a separate reduced entitlement file. Validate it with your actual identity and pinned dependencies before shipping.
+This produces `VOCA-beta.zip`, `VOCA-source.zip`, an installation guide, source revision and SHA-256 checksums. No upload occurs. Tests do not replace live Word/browser insertion, multi-display, microphone-disconnection, update-permission or consented Music/Spotify testing.
 
-The selected test runner excludes the inherited nondeterministic Whisper Tiny fixture test and does not call paid APIs. Tests are not a substitute for live Word/browser insertion, noisy-room finishing, microphone switching, upgrade permissions, and multi-display checks.
-
-## Build the website
+## Website
 
 ```sh
-npm run dev       # local preview, normally http://localhost:5173
+npm run dev       # http://localhost:5173
+npm test
 npm run check
-npm run build     # static output in dist/
+npm run build     # static files in dist/
 ```
 
-No npm dependencies. Node 20 or newer. `releaseReady: false` deliberately prevents checkout and download links from activating. Set real URLs, support details, and final seller terms only after the release checklist passes. The €5 beta download price is planned, not a live offer. All local features are included; this build is locally signed but not Apple-notarized. Cloud usage is separate.
+No npm dependencies; Node 20+. `config.js` holds the planned €5 price and public configuration, never secrets. Shared validation keeps sales off until checkout/download/source/terms URLs, seller identity, support email and beta disclosure are configured. `node scripts/site-release-check.mjs` currently fails deliberately because those details are missing.
 
-```sh
-node scripts/site-release-check.mjs
-./scripts/release-check.sh VOCA.app
-```
+Upload only `dist/` to Cloudflare Pages. Pages limits individual assets to 25 MiB; the smaller ZIP currently fits, but check each release and use separate download storage if it exceeds that limit. A public static ZIP URL is not paid-download access control. Pair every distributed binary with its corresponding source.
 
-A blocked release check is the expected result for an ad-hoc preview. We do not turn the test green by renaming “blocked” to “premium early access.”
+## Credit, licence and pricing
 
-## License and business model
+VOCA is a **GPLv3 fork of [FluidVoice](https://github.com/altic-dev/Fluid-oss)**, based on `42e33e68ec473129ad090521e56c22c912a16db3`. Its speech/provider foundations remain. VOCA adds its interface, destination/recovery workflow, personal styles, pause handling and local Qwen integration. Original notices remain. Credit is not a UI bug.
 
-The application is GPLv3; see [LICENSE](LICENSE), [original source documentation](VocaSource/README-UPSTREAM.md), [changes](VocaSource/VOCA-CHANGES.md), and [third-party notices](VocaSource/THIRD-PARTY-NOTICES.txt). Third-party fonts, models, and assets retain their own terms.
+The planned €5 purchase is for the convenient prebuilt download with all local features, not exclusive rights over GPL code. Recipients retain GPL rights, including modification and redistribution, and need access to matching source. The repository is private today; public source availability is being considered, not already live. Provider fees, downloaded models and assets have their own terms.
 
-A paid download, maintained installer, updates, and support can be monetized while preserving GPL rights. A private development repo is fine; distributing binaries creates corresponding-source obligations to recipients. A closed-source/no-redistribution EULA is not compatible with this fork without separate permissions.
+See [LICENSE](LICENSE), [changes](VocaSource/VOCA-CHANGES.md), [third-party notices](VocaSource/THIRD-PARTY-NOTICES.txt), [monetization](docs/MONETIZATION.md), and [remaining release work](docs/RELEASE-READINESS.md). No fake activation server is hiding behind a button that always says success.
 
-See [monetization and license plan](docs/MONETIZATION.md) for checkout, purchase keys, and source delivery. No payment service, activation server, or paid entitlement is secretly “implemented” as a button that always says success.
+## Repository map
 
-## Before you publish
+- `VocaSource/`: active app, tests, notices and build scripts.
+- `index.html`, `styles.css`, `app.js`, `public/assets/`: website.
+- `config.js`, `release-config.js`: public release configuration and validation.
+- `scripts/`: beta packaging and release checks.
+- `docs/`: installation, release status and [draft launch posts](docs/SOCIAL-POSTS.md).
 
-Read [release readiness](docs/RELEASE-READINESS.md) and [the current application review](VocaSource/VOCA-PERSONAL-REVIEW.md). The important remaining work is stable signing/notarization, dependency/model rights, supported-device live tests, and real support/checkout infrastructure. Then a small beta. Then sales.
-
-Beautiful buttons are nice. A customer’s words arriving intact is the business.
-
-## Private development repository
-
-[InstinctEx/VOCA](https://github.com/InstinctEx/VOCA) contains the source snapshot, website, tests and these documents. Repository visibility is private. The original website workspace remote was preserved; the upload checkout is `.release-repo/`. Do not include build caches, recordings or credentials when updating it.
-
-## Unsigned beta build
-
-No paid Apple Developer account is needed for the locally signed beta. The optimized Release build is verified locally; first-install approval and Accessibility setup still apply. See [installation notes](docs/BETA-INSTALL.md), [release status](docs/RELEASE-READINESS.md), and `scripts/package-beta.sh` for the binary/source/checksum bundle. Sales remain disabled pending real checkout, seller, support, and download configuration.
+Build caches, app bundles, model weights, recordings, local databases and credentials are excluded. The repository is not a twelve-gigabyte scrapbook of Xcode's feelings.

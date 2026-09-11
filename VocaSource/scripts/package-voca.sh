@@ -2,7 +2,7 @@
 set -euo pipefail
 project_root="${0:A:h:h}"
 voca_configuration="${VOCA_BUILD_CONFIGURATION:-Debug}"
-product="$project_root/DerivedData/Build/Products/$voca_configuration/VOCA.app"
+product="${VOCA_PACKAGE_INPUT:-$project_root/DerivedData/Build/Products/$voca_configuration/VOCA.app}"
 output="$project_root/../VOCA.app"
 stage="$(mktemp -d "$project_root/DerivedData/package.XXXXXX")"
 ditto "$product" "$stage/VOCA.app"
@@ -17,6 +17,11 @@ fi
 # Packaged builds must use their embedded, signed frameworks, not an Xcode
 # product path that may contain a rebuilt or unsigned development copy.
 for executable in "$stage/VOCA.app/Contents/MacOS/"*(N); do
+  if [[ "$voca_configuration" == "Release" ]]; then
+    # Retain global/exported symbols, Swift metadata and all model resources.
+    # Keep Xcode's separate dSYM locally; do not ship debug/local symbol tables.
+    xcrun strip -S -x "$executable"
+  fi
   development_rpath="$project_root/DerivedData/Build/Products/$voca_configuration/PackageFrameworks"
   if otool -l "$executable" 2>/dev/null | rg -Fq "path $development_rpath ("; then
     install_name_tool -delete_rpath "$development_rpath" "$executable"

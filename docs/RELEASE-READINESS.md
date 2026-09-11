@@ -40,3 +40,7 @@ App: 418 selected tests, 414 passed, four opt-in real-model/audio tests skipped,
 A later notarized edition requires a valid Developer ID certificate, hardened signing, Apple's notary submission, stapling, and Gatekeeper verification. The standard release gate still enforces those requirements by default.
 
 References: [Apple installation guidance](https://support.apple.com/en-us/102445), [Developer ID](https://developer.apple.com/developer-id/), [GPLv3](https://www.gnu.org/licenses/gpl-3.0.html).
+
+## Smaller beta package
+
+Release packaging now removes debug/local executable symbols before re-signing. The trial retained the complete global/exported symbol list, launched successfully, and ran a local Qwen sample in 3.38 seconds. ZIP reduced from 28,312,041 to approximately 21,421,184 bytes (24.3%); installed app from about 108 to 57 MiB. Future archive bytes may vary with included notices. Runtime/model resources remain intact; model downloads are still separate. No new full regression run was needed for this packaging-only change.

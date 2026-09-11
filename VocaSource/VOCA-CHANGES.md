@@ -112,3 +112,7 @@ Reproduced and corrected Qwen answering dictated instructions instead of editing
 ## Unsigned beta preparation
 
 Removed the unresolved private media adapter. Optional media pause now targets Music and Spotify through their public scripting interfaces, with explicit Automation setup and same-track resume. Other players/browser media are not controlled. Added a locally signed Release distribution path and source/checksum packaging; public sales remain unconfigured. Validation: 414 app tests passed, four opt-in tests skipped; six website tests passed. Live player permissions and broad destination/hardware testing remain beta work.
+
+## Smaller Release package
+
+Release packaging strips debug/local executable symbols before signing, retaining exports and runtime resources. Verified unchanged exported symbol names, successful launch and actual local Qwen inference in the smaller build. The beta ZIP is about 20.4 MiB rather than 27 MiB; model downloads remain separate.
