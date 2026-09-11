@@ -1,3 +1,7 @@
+# Free public beta — distribution update
+
+The September 12 tested binary is distributed free through GitHub Releases with exact matching source, checksums and installation instructions. It is a prerelease, not Apple-notarized or certified across the full compatibility matrix. No purchase or licence setup is required. The historical paid-release checklist below is retained as engineering context; seller, checkout and refund requirements no longer apply to this free beta. First-install testing on another Mac and the live compatibility matrix remain outstanding.
+
 # Release readiness — 12 September 2026
 
 **Current target: a locally signed, unnotarized beta. Paid sales are not open.** The owner does not have a paid Apple Developer account. An optimized Release build does not require that account, but it does not gain Developer ID trust or Apple notarization. Installation may require manual approval; ad-hoc updates can require renewed Accessibility permission.

@@ -1,12 +1,10 @@
 import { siteConfig } from './config.js';
-import { releaseProblems } from './release-config.js';
-const salesEnabled = releaseProblems(siteConfig).length === 0;
+import { releaseProblems, isPublicHttpsUrl } from './release-config.js';
+const downloadsEnabled = releaseProblems(siteConfig).length === 0;
 
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => [...document.querySelectorAll(selector)];
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
-const formatPrice = new Intl.NumberFormat('en-IE', {style:'currency',currency:siteConfig.currency,maximumFractionDigits:0});
-$$('[data-price]').forEach(el => { el.textContent = formatPrice.format(siteConfig.lifetimePrice); });
 $('#year').textContent = new Date().getFullYear();
 
 // A flat, recognisable voice mark is repeated in the product UI, not a stock mic.
@@ -138,24 +136,25 @@ $('#open-interactive').addEventListener('click',()=>{
 });
 function showInfo(title,message){$('#info-title').textContent=title;$('#info-text').textContent=message;$('#info-dialog').showModal();}
 $('#info-done').addEventListener('click',()=>$('#info-dialog').close());
-$('.purchase-button').addEventListener('click',()=>{
-  if(salesEnabled){window.location.assign(siteConfig.checkoutUrl);return;}
-  showInfo('A little more headspace is on its way.','VOCA’s source is public and free to build. The €5 prebuilt beta includes all local features. This beta is not Apple-notarized and may need manual approval in macOS Privacy & Security. Purchases open after download, source delivery, and seller details are verified. Optional AI API costs are separate.');
-});
-if(salesEnabled){
-  $('.price-description').textContent = 'All local features are included. This beta is locally signed, not Apple-notarized; macOS may require manual approval in Privacy & Security. Read the purchase terms before buying.';
-  $('#purchase-faq p').textContent = 'The price covers this prebuilt beta with all local features. Optional cloud AI usage is billed separately by your provider. See the purchase terms for support and upgrade details.';
-  $('#availability-faq p').textContent = 'The prebuilt beta is available through checkout. It is not Apple-notarized and may require manual approval in Privacy & Security. Apple Silicon and macOS 15+ are required; Liquid Glass requires macOS 26. The source is also free to build.';
-  $('.purchase-button').textContent = `Buy the beta · ${formatPrice.format(siteConfig.lifetimePrice)} ↗`;
-  $('.purchase-caption').textContent = siteConfig.deliveryMode === 'hosted-checkout' ? 'Secure checkout and file delivery through the store. Your receipt includes download access.' : 'One-time beta download. Optional API usage is billed separately.';
-  if (siteConfig.deliveryMode !== 'hosted-checkout') {
-    const link=document.createElement('a');link.href=siteConfig.downloadUrl;link.className='download-link';link.textContent='Already own Voca? Download for Mac';$('.price-card').append(link);
-  }
-  for (const [label, url] of [['Matching source (GPLv3)', siteConfig.sourceUrl], ['Purchase terms', siteConfig.termsUrl]]) { const a=document.createElement('a');a.href=url;a.className='download-link';a.textContent=label;$('.price-card').append(a); }
+const downloadButton = $('.download-button');
+if (downloadsEnabled) {
+  downloadButton.href = siteConfig.downloadUrl;
+  downloadButton.textContent = 'Download free beta ↗';
+  $('.release-link').href = siteConfig.releaseUrl;
+  $('.source-link').href = siteConfig.sourceUrl;
+} else {
+  downloadButton.removeAttribute('href');
+  downloadButton.setAttribute('aria-disabled', 'true');
+  downloadButton.textContent = 'Download coming soon';
+}
+if (isPublicHttpsUrl(siteConfig.donationUrl)) {
+  const support = $('.donation-link');
+  support.href = siteConfig.donationUrl;
+  support.hidden = false;
 }
 $$('[data-info]').forEach(button=>button.addEventListener('click',()=>{
   if(button.dataset.info==='privacy')showInfo('Your privacy, here.','This page doesn’t use your microphone, store your dictation, or run analytics. The demos use sample text. Details about the Mac app’s data handling will be provided with its release.');
   else if(siteConfig.supportEmail)window.location.href=`mailto:${siteConfig.supportEmail}`;
-  else showInfo('Say hello.','Our support contact will be available here when Voca launches. In the meantime, explore the walkthrough to get a feel for the app.');
+  else window.location.assign('https://github.com/InstinctEx/VOCA/issues');
 }));
 document.addEventListener('visibilitychange',()=>{if(document.hidden){hideFoliage();stopDemo();heroTimers.forEach(clearTimeout);if(heroRunning)finishHero();}});

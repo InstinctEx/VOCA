@@ -1,6 +1,6 @@
 # VOCA launch drafts
 
-Prepared September 12, 2026. Drafts only—not posted. Source is public at https://github.com/InstinctEx/VOCA. Prebuilt checkout is not live, and the beta is not Apple-notarized. Share the repository as free-to-build source, not a ready-made app download. Add a verified public demo link if available, and check the community's current self-promotion rules before posting.
+Prepared September 12, 2026. Drafts only—not posted. Source is public at https://github.com/InstinctEx/VOCA. The free prebuilt beta is at https://github.com/InstinctEx/VOCA/releases/tag/beta-2026-09-12 and is not Apple-notarized. Add a verified public demo link if available, and check the community's current self-promotion rules before posting.
 
 ## r/macapps
 
@@ -34,6 +34,6 @@ The latest beta has 414 passing app regression tests. I also reduced the downloa
 
 I'm exploring a €5 prebuilt download with all local features included and free source access. No subscription for local dictation. Optional cloud API costs would be separate.
 
-It's still a locally signed, unnotarized beta, with public downloads not yet open. I'd love to hear from Mac users: where would dictation genuinely save you time, and what makes you stop using it?
+It's still a locally signed, unnotarized beta, with a free prebuilt download available. I'd love to hear from Mac users: where would dictation genuinely save you time, and what makes you stop using it?
 
 #macOS #IndieDevelopment #LocalAI

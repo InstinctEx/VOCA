@@ -1,13 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { releaseProblems } from '../release-config.js';
-const ready = {releaseReady:true, distributionChannel:'unsigned-beta', betaDisclosureAccepted:true, lifetimePrice:5, sellerName:'Test seller',supportEmail:'support@voca.test',checkoutUrl:'https://pay.voca.test/buy',downloadUrl:'https://download.voca.test/app.zip',sourceUrl:'https://download.voca.test/source.zip',termsUrl:'https://voca.test/terms'};
-test('complete beta configuration passes',()=>assert.deepEqual(releaseProblems(ready),[]));
-test('preview never opens sales',()=>assert.ok(releaseProblems({...ready,releaseReady:false}).length));
-test('source delivery and terms cannot be omitted',()=>{for(const key of ['sourceUrl','termsUrl'])assert.ok(releaseProblems({...ready,[key]:''}).length)});
-test('reject executable, insecure and credential-bearing links',()=>{for(const checkoutUrl of ['javascript:alert(1)','http://pay.voca.test','https://user:password@pay.voca.test','https://example.com'])assert.ok(releaseProblems({...ready,checkoutUrl}).length)});
-test('unsigned beta needs an explicit disclosure decision',()=>assert.ok(releaseProblems({...ready,betaDisclosureAccepted:false}).length));
-
+import { releaseProblems, isPublicHttpsUrl } from '../release-config.js';
+const ready = {releaseReady:true,distributionChannel:'unsigned-beta',betaDisclosureAccepted:true,downloadUrl:'https://github.com/InstinctEx/VOCA/releases/download/beta/test.zip',sourceUrl:'https://github.com/InstinctEx/VOCA/archive/test.zip',releaseUrl:'https://github.com/InstinctEx/VOCA/releases/tag/beta'};
+test('free release needs no checkout, seller or donation account',()=>assert.deepEqual(releaseProblems(ready),[]));
+test('unready releases remain blocked',()=>assert.ok(releaseProblems({...ready,releaseReady:false}).length));
+test('binary, source and release notes are required',()=>{for(const key of ['downloadUrl','sourceUrl','releaseUrl']) assert.ok(releaseProblems({...ready,[key]:''}).length)});
+test('unsafe URLs are rejected',()=>{for(const url of ['javascript:alert(1)','http://github.com/a','https://user:password@github.com/a','https://example.com','']) assert.equal(isPublicHttpsUrl(url),false)});
+test('beta disclosure is required',()=>assert.ok(releaseProblems({...ready,betaDisclosureAccepted:false}).length));
+test('donations never gate downloads',()=>{for(const donationUrl of ['', 'https://ko-fi.com/voca', 'javascript:alert(1)']) assert.deepEqual(releaseProblems({...ready,donationUrl}),[])});
 test('preview server serves public files but not repository or private files', async () => {
   const {spawn} = await import('node:child_process');
   const child=spawn(process.execPath,['server.mjs'],{env:{...process.env,PORT:'0'},stdio:['ignore','pipe','pipe']});
@@ -21,8 +21,3 @@ test('preview server serves public files but not repository or private files', a
     for(const file of ['/.git/config','/.env','/VocaSource/Info.plist','/assets/%2e%2e/%2e%2e/.git/config']) assert.equal((await fetch(`http://127.0.0.1:${port}${file}`)).status,404);
   } finally {child.kill();}
 });
-
-test('hosted checkout delivers files without a public binary URL',()=>assert.deepEqual(releaseProblems({...ready,deliveryMode:'hosted-checkout',downloadUrl:''}),[]));
-test('direct downloads still require a real binary URL',()=>assert.ok(releaseProblems({...ready,deliveryMode:'direct-download',downloadUrl:''}).length));
-test('hosted checkout still requires source and seller details',()=>{for(const key of ['sourceUrl','termsUrl','sellerName','supportEmail','checkoutUrl']) assert.ok(releaseProblems({...ready,deliveryMode:'hosted-checkout',downloadUrl:'',[key]:''}).length)});
-test('unknown delivery mode cannot enable purchases',()=>assert.ok(releaseProblems({...ready,deliveryMode:'unknown'}).length));

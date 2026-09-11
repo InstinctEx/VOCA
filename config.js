@@ -1,17 +1,14 @@
-// Replace these values before opening purchases to the public.
+// Public links only. Never put credentials in this file.
+const release = 'https://github.com/InstinctEx/VOCA/releases/download/beta-2026-09-12';
 export const siteConfig = {
-  releaseReady: false, // Set only after the release checklist is complete.
-  lifetimePrice: 5,
-  currency: 'EUR',
+  releaseReady: true,
   distributionChannel: 'unsigned-beta',
-  betaDisclosureAccepted: false,
-  sellerName: '',
-  sourceUrl: 'https://github.com/InstinctEx/VOCA/archive/5272c4b2a48a80decbb1206f87a537d4a6fb56aa.zip',
-  termsUrl: '',
-  checkoutUrl: '',
-  downloadUrl: '',
-  deliveryMode: 'hosted-checkout', // Store delivers files after purchase; no public binary URL.
+  betaDisclosureAccepted: true,
+  downloadUrl: `${release}/VOCA-beta.zip`,
+  sourceUrl: `${release}/VOCA-source.zip`,
+  releaseUrl: 'https://github.com/InstinctEx/VOCA/releases/tag/beta-2026-09-12',
   repositoryUrl: 'https://github.com/InstinctEx/VOCA',
+  donationUrl: '', // Optional Ko-fi page; downloads never depend on donations.
   walkthroughVideoUrl: '',
   supportEmail: '',
 };
