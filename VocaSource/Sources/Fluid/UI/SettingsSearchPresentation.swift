@@ -185,6 +185,7 @@ struct SettingsPersistentScrollView<Content: View>: NSViewRepresentable {
         AnyView(
             self.content
                 .appTheme(self.theme)
+                .disclosureGroupStyle(VocaDisclosureStyle())
                 .environment(\.colorScheme, self.colorScheme)
         )
     }
@@ -192,6 +193,8 @@ struct SettingsPersistentScrollView<Content: View>: NSViewRepresentable {
     func makeNSView(context _: Context) -> NSScrollView {
         let scrollView = NSScrollView()
         scrollView.drawsBackground = false
+        scrollView.automaticallyAdjustsContentInsets = false
+        scrollView.contentInsets = NSEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
         scrollView.hasVerticalScroller = true
         scrollView.hasHorizontalScroller = false
         scrollView.autohidesScrollers = false

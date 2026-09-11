@@ -1408,6 +1408,15 @@ struct ContentView: View {
 
     private var settingsSidebarView: some View {
         VStack(spacing: 0) {
+            HStack(spacing: 10) {
+                VocaBrandMark(size: 30)
+                VStack(alignment: .leading, spacing: 3) {
+                    Text("Settings").font(.headline)
+                    Text("Make VOCA yours").font(.caption).foregroundStyle(.secondary)
+                }
+                Spacer()
+            }.padding(16)
+
             Button {
                 self.closeSettings()
             } label: {
@@ -1462,12 +1471,15 @@ struct ContentView: View {
                         HStack(spacing: self.theme.metrics.spacing.sm) {
                             Image(systemName: section.systemImage)
                                 .symbolRenderingMode(.hierarchical)
-                                .foregroundStyle(isSelected ? Color.white : self.theme.palette.accent)
+                                .foregroundStyle(isSelected ? Color.white : Color.secondary)
                                 .frame(width: 26, height: 26)
-                                .background(self.theme.palette.accent.opacity(0.12), in: RoundedRectangle(cornerRadius: 7))
+                                .background(Color.primary.opacity(0.045), in: RoundedRectangle(cornerRadius: 7))
 
-                            Text(section.title)
-                                .foregroundStyle(isSelected ? Color.white : Color.primary)
+                            VStack(alignment: .leading, spacing: 3) {
+                                Text(section.title).foregroundStyle(isSelected ? Color.white : Color.primary)
+                                Text(self.settingsSectionHint(section)).font(.system(size: 10))
+                                    .foregroundStyle(isSelected ? Color.white.opacity(0.85) : Color.secondary)
+                            }.padding(.vertical, 5)
                         }
                         .font(self.theme.typography.sidebarItem)
                     }
@@ -1481,6 +1493,25 @@ struct ContentView: View {
             .accentColor(self.theme.palette.accent)
             .scrollContentBackground(.hidden)
             .animation(self.accessibilityReduceMotion ? nil : .easeInOut(duration: 0.16), value: self.settingsNavigation.selectedSection)
+            Divider().opacity(0.3)
+            VStack(alignment: .leading, spacing: 8) {
+                Label("Need a hand?", systemImage: "questionmark.circle").font(.callout.weight(.medium))
+                Text("Check permissions, test insertion, or open the guide.").font(.caption).foregroundStyle(.secondary)
+                Button("Setup check") { self.showDestinationCheck = true }.buttonStyle(.borderless)
+                Button("VOCA guide") { self.showVocaHelp = true }.buttonStyle(.borderless)
+            }.frame(maxWidth: .infinity, alignment: .leading).padding(16)
+        }.background(self.theme.palette.sidebarBackground.opacity(0.72)).background(.ultraThinMaterial)
+    }
+
+    private func settingsSectionHint(_ section: SettingsSection) -> String {
+        switch section.title {
+        case "General": return "Startup & appearance"
+        case "Dictation": return "Shortcuts & writing"
+        case "Notifications": return "Sounds & alerts"
+        case "Audio": return "Microphone & playback"
+        case "Overlay": return "Notch & cursor pill"
+        case "Data & Diagnostics": return "Storage & troubleshooting"
+        default: return "Advanced options"
         }
     }
 
@@ -1694,6 +1725,8 @@ struct ContentView: View {
                     .transition(self.settingsDetailTransition)
             }
         }
+        .disclosureGroupStyle(VocaDisclosureStyle())
+        .vocaDetailViewport()
         .animation(self.modeTransitionAnimation, value: self.settingsNavigation.isPresented)
     }
 

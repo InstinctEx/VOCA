@@ -76,3 +76,9 @@ Built-in Apple Silicon enhancement using Qwen3-4B-Instruct-2507 (4-bit) and MLX 
 - Grouped enhancement providers by On this Mac / Cloud services / Your server; retained existing models, verification and custom endpoints.
 - Added a Downloaded speech-model filter and compact active-engine summary; refined overview and dictionary presentation.
 - Separated verified provider identity and controls to prevent narrow-window clipping.
+
+## Dashboard and navigation
+- Added real history metrics and seven-day activity to Overview, with clearly labeled time-saved estimates.
+- Made disclosure labels full-row keyboard-accessible buttons throughout the app and Settings.
+- Removed the top scroll-edge overlay and automatic Settings inset adjustment; clipped detail content to its viewport.
+- Added descriptive Settings navigation and direct setup/help actions.

@@ -52,6 +52,8 @@ struct WelcomeView: View {
                         .vocaGlass(cornerRadius: 14)
                         .help("Your dictation shortcut")
                 }
+                VocaOverviewMetrics { self.selectedSidebarItem = .stats }
+                DisclosureGroup(self.ready ? "Ready to dictate · Setup & shortcuts" : "Finish setting up VOCA") {
                 VStack(spacing: 0) {
                     HStack(spacing: 9) {
                         Image(systemName: self.ready ? "checkmark.circle.fill" : "slider.horizontal.3")
@@ -83,6 +85,7 @@ struct WelcomeView: View {
                     self.readinessRow("Type anywhere", detail: self.accessibilityEnabled ? "Inserts at your cursor" : "Allow Accessibility access", symbol: "text.cursor", complete: self.accessibilityEnabled, action: self.openAccessibilitySettings)
                 }.vocaContentSurface()
 
+                }
                 VocaGlassGroup {
                 LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 12), count: 3), spacing: 12) {
                     self.destination("Speech Models", detail: "Find your voice engine", symbol: "waveform", item: .voiceEngine)

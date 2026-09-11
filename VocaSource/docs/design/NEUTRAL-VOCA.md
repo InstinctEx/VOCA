@@ -20,3 +20,11 @@ September 2026 design pass. References supplied by the product owner informed gr
 ## Accessibility and behavior
 
 Segmented controls use native keyboard and accessibility semantics. The provider category changes only the visible library, never the selected dictation provider. Model filtering never switches or deletes a model. Native window controls and established shortcut routing are retained.
+
+## Dashboard and interaction follow-up
+
+Overview now places retained-history metrics first: estimated time saved, total words, dictation count, today's words, current streak and a seven-day activity spark chart. Zero history displays zero saved time. Estimates disclose the user's typing speed and assumed 150 speaking WPM; inference processing time is not mislabeled as recording duration.
+
+All disclosure labels use a full-width native button with an expanded/collapsed accessibility value, keyboard activation and Reduce Motion support. The same style is injected into the separately hosted Settings document.
+
+Detail scroll-edge effects are disabled on macOS 26 and the detail viewport clips its contents, preventing the toolbar-area effect from obscuring page headings. The AppKit settings scroll view owns explicit zero content insets, avoiding automatic titlebar-inset duplication. Settings navigation includes descriptive subtitles, a VOCA header, and setup/help actions.

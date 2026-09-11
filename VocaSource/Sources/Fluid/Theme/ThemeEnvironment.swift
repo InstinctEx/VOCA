@@ -188,3 +188,40 @@ struct VocaBrandMark: View {
         }.frame(width: size, height: size).accessibilityLabel("VOCA")
     }
 }
+
+/// A disclosure is a full-width button, not a tiny chevron target.
+struct VocaDisclosureStyle: DisclosureGroupStyle {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    func makeBody(configuration: Configuration) -> some View {
+        VStack(alignment: .leading, spacing: 0) {
+            Button {
+                withAnimation(self.reduceMotion ? nil : .easeInOut(duration: 0.18)) {
+                    configuration.isExpanded.toggle()
+                }
+            } label: {
+                HStack(spacing: 10) {
+                    configuration.label
+                    Spacer(minLength: 8)
+                    Image(systemName: "chevron.right")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.secondary)
+                        .rotationEffect(.degrees(configuration.isExpanded ? 90 : 0))
+                }.frame(maxWidth: .infinity, minHeight: 28, alignment: .leading)
+                    .contentShape(Rectangle())
+            }.buttonStyle(.plain)
+                .accessibilityValue(configuration.isExpanded ? "Expanded" : "Collapsed")
+            if configuration.isExpanded { configuration.content }
+        }
+    }
+}
+
+private struct VocaDetailViewport: ViewModifier {
+    func body(content: Content) -> some View {
+        if #available(macOS 26.0, *) {
+            content.scrollEdgeEffectHidden(true, for: .top).clipped()
+        } else { content.clipped() }
+    }
+}
+extension View {
+    func vocaDetailViewport() -> some View { modifier(VocaDetailViewport()) }
+}
