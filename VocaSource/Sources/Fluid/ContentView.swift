@@ -543,6 +543,9 @@ struct ContentView: View {
 
     private func applyShortcutStateChanges<Content: View>(to view: Content) -> some View {
         view
+            .onReceive(NotificationCenter.default.publisher(for: Notification.Name("voca.restartHotkeyListener"))) { _ in
+                self.hotkeyManager?.reinitialize()
+            }
             .onAppear {
                 self.handleContentAppear()
             }
@@ -4418,7 +4421,9 @@ struct ContentView: View {
             }
         )
 
-        self.hotkeyManagerInitialized = self.hotkeyManager?.validateEventTapHealth() ?? false
+        self.hotkeyManager?.setInitializationStatusCallback { ready in
+            self.hotkeyManagerInitialized = ready
+        }
 
         self.hotkeyManager?.setHotkeyMode(self.hotkeyMode)
 
@@ -4466,28 +4471,6 @@ struct ContentView: View {
             self.pasteLastDictationFromHistory()
         }
 
-        // Monitor initialization status
-        Task {
-            // Give some time for initialization
-            try? await Task.sleep(nanoseconds: 3_000_000_000) // 3 seconds
-
-            await MainActor.run {
-                self.hotkeyManagerInitialized = self.hotkeyManager?.validateEventTapHealth() ?? false
-                DebugLogger.shared.debug("Initial hotkey manager health check: \(self.hotkeyManagerInitialized)", source: "ContentView")
-
-                // If still not initialized and accessibility is enabled, try reinitializing
-                if !self.hotkeyManagerInitialized && self.accessibilityEnabled {
-                    self.hotkeyManagerInitialized = self.hotkeyManager?.validateEventTapHealth() ?? false
-                    DebugLogger.shared.debug("Initial hotkey manager health check: \(self.hotkeyManagerInitialized)", source: "ContentView")
-
-                    // If still not initialized and accessibility is enabled, try reinitializing
-                    if !self.hotkeyManagerInitialized && self.accessibilityEnabled {
-                        DebugLogger.shared.debug("Hotkey manager not healthy, attempting reinitalization", source: "ContentView")
-                        self.hotkeyManager?.reinitialize()
-                    }
-                }
-            }
-        }
     }
 
     @discardableResult

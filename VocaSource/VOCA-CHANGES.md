@@ -94,3 +94,9 @@ Built-in Apple Silicon enhancement using Qwen3-4B-Instruct-2507 (4-bit) and MLX 
 - Speaking pace counts raw transcript words and includes pauses; AI-expanded text cannot inflate it.
 - Saved-time estimates across Overview, Usage, and today's stats subtract measured recording and known transcription/cleanup time from the user's typing baseline.
 - Timing persists independently of audio storage. Legacy untimed history remains readable and uses an explicitly labeled 150 WPM fallback; no measured pace is invented for it.
+
+## Hotkey listener recovery
+- Fixed startup retries recursively returning to attempt one forever. Retries now stop after five attempts and are canceled when a new initialization replaces them.
+- Listener health changes now update Settings directly, including delayed success and a disabled tap.
+- Removed a competing three-second startup reset; recovery checks run every five seconds after setup finishes.
+- Replaced endless initializing indicators with an unavailable message and a Restart listener action. Active listeners also expose a restart action.

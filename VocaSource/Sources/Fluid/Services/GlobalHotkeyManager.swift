@@ -457,12 +457,20 @@ final class GlobalHotkeyManager: NSObject {
     /// Busy flag to prevent race conditions during stop processing
     private var isProcessingStop = false
 
-    private var isInitialized = false
+    private var initializationStatusCallback: ((Bool) -> Void)?
+    private var isInitialized = false {
+        didSet { self.initializationStatusCallback?(self.isInitialized) }
+    }
+    func setInitializationStatusCallback(_ callback: @escaping (Bool) -> Void) {
+        self.initializationStatusCallback = callback
+        callback(self.validateEventTapHealth())
+    }
     private var initializationTask: Task<Void, Never>?
     private var healthCheckTask: Task<Void, Never>?
     private var maxRetryAttempts = 5
-    private var retryDelay: TimeInterval = 0.5
-    private var healthCheckInterval: TimeInterval = 30.0
+    var retryDelay: TimeInterval = 0.5
+    var eventTapSetupOverride: (() -> Bool)?
+    private var healthCheckInterval: TimeInterval = 5.0
     private var activeShortcutLogScheduled = false
 
     init(
@@ -486,7 +494,8 @@ final class GlobalHotkeyManager: NSObject {
         isPromptModeRecordingProvider: (() -> Bool)? = nil,
         isCommandRecordingProvider: (() -> Bool)? = nil,
         isRewriteRecordingProvider: (() -> Bool)? = nil,
-        isShortcutCaptureActiveProvider: (() -> Bool)? = nil
+        isShortcutCaptureActiveProvider: (() -> Bool)? = nil,
+        initializeAutomatically: Bool = true
     ) {
         self.asrService = asrService
         self.primaryShortcuts = primaryShortcuts
@@ -511,7 +520,7 @@ final class GlobalHotkeyManager: NSObject {
         self.isShortcutCaptureActiveProvider = isShortcutCaptureActiveProvider
         super.init()
 
-        self.initializeWithDelay()
+        if initializeAutomatically { self.initializeWithDelay() }
     }
 
     private func initializeWithDelay() {
@@ -628,30 +637,27 @@ final class GlobalHotkeyManager: NSObject {
         self.pasteLastTranscriptionCallback = callback
     }
 
-    private func setupGlobalHotkeyWithRetry() {
-        for attempt in 1...self.maxRetryAttempts {
-            DebugLogger.shared.debug("Setup attempt \(attempt)/\(self.maxRetryAttempts)", source: "GlobalHotkeyManager")
-
-            if self.setupGlobalHotkey() {
-                self.isInitialized = true
-                DebugLogger.shared.info("Successfully initialized on attempt \(attempt)", source: "GlobalHotkeyManager")
-                self.startHealthCheckTimer()
-                return
-            }
-
-            if attempt < self.maxRetryAttempts {
-                DebugLogger.shared.warning("Attempt \(attempt) failed, retrying in \(self.retryDelay) seconds...", source: "GlobalHotkeyManager")
-                Task { [weak self] in
-                    try? await Task.sleep(nanoseconds: UInt64((self?.retryDelay ?? 0.5) * 1_000_000_000))
-                    await MainActor.run { [weak self] in
-                        self?.setupGlobalHotkeyWithRetry()
-                    }
+    func setupGlobalHotkeyWithRetry() {
+        self.initializationTask?.cancel()
+        self.initializationTask = Task { [weak self] in
+            guard let self else { return }
+            for attempt in 1...self.maxRetryAttempts {
+                guard !Task.isCancelled else { return }
+                if self.eventTapSetupOverride?() ?? self.setupGlobalHotkey() {
+                    self.isInitialized = true
+                    self.startHealthCheckTimer()
+                    return
                 }
-                return
+                self.isInitialized = false
+                if attempt < self.maxRetryAttempts {
+                    do { try await Task.sleep(for: .seconds(self.retryDelay)) }
+                    catch { return }
+                }
             }
+            DebugLogger.shared.error("Hotkey listener unavailable after five attempts", source: "GlobalHotkeyManager")
+            // Continue a slow health check so granting permissions later can recover automatically.
+            self.startHealthCheckTimer()
         }
-
-        DebugLogger.shared.error("Failed to initialize after \(self.maxRetryAttempts) attempts", source: "GlobalHotkeyManager")
     }
 
     @discardableResult
@@ -2360,9 +2366,7 @@ final class GlobalHotkeyManager: NSObject {
         // Treat an enabled event tap as "healthy", even if our internal `isInitialized` flag drifted.
         // This prevents false "initializing" UI while hotkeys are already working.
         let enabled = self.isEventTapEnabled()
-        if enabled && !self.isInitialized {
-            self.isInitialized = true
-        }
+        if enabled != self.isInitialized { self.isInitialized = enabled }
         return enabled
     }
 

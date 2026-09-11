@@ -5,6 +5,38 @@ import XCTest
 
 @MainActor
 final class VocaInterfaceTests: XCTestCase {
+    func testHotkeyInitializationStopsRetryingAfterFiveFailures() async throws {
+        let manager = GlobalHotkeyManager(asrService: ASRService(), primaryShortcuts: [], promptModeShortcut: .init(keyCode: 15, modifierFlags: [.option]), commandModeShortcut: nil, rewriteModeShortcut: .init(keyCode: 15, modifierFlags: [.option]), promptModeShortcutEnabled: false, commandModeShortcutEnabled: false, rewriteModeShortcutEnabled: false, initializeAutomatically: false)
+        var attempts = 0
+        manager.retryDelay = 0.01
+        manager.eventTapSetupOverride = { attempts += 1; return false }
+        manager.setupGlobalHotkeyWithRetry()
+        try await Task.sleep(for: .milliseconds(160))
+        XCTAssertEqual(attempts, 5, "Failed listener startup must terminate, not restart attempt one forever")
+    }
+
+    func testHotkeyLateSuccessNotifiesUIAndRestartCancelsOldRetries() async throws {
+        let manager = GlobalHotkeyManager(asrService: ASRService(), primaryShortcuts: [], promptModeShortcut: .init(keyCode: 15, modifierFlags: [.option]), commandModeShortcut: nil, rewriteModeShortcut: .init(keyCode: 15, modifierFlags: [.option]), promptModeShortcutEnabled: false, commandModeShortcutEnabled: false, rewriteModeShortcutEnabled: false, initializeAutomatically: false)
+        manager.retryDelay = 0.01
+        var states: [Bool] = []
+        manager.setInitializationStatusCallback { states.append($0) }
+        var attempts = 0
+        manager.eventTapSetupOverride = { attempts += 1; return attempts == 3 }
+        manager.setupGlobalHotkeyWithRetry()
+        try await Task.sleep(for: .milliseconds(100))
+        XCTAssertEqual(attempts, 3)
+        XCTAssertEqual(states.last, true, "Delayed success must reach the Settings badge")
+        manager.eventTapSetupOverride = { attempts += 1; return false }
+        manager.setupGlobalHotkeyWithRetry()
+        try await Task.sleep(for: .milliseconds(15))
+        var replacementAttempts = 0
+        manager.eventTapSetupOverride = { replacementAttempts += 1; return true }
+        manager.setupGlobalHotkeyWithRetry()
+        try await Task.sleep(for: .milliseconds(100))
+        XCTAssertEqual(replacementAttempts, 1, "Canceled retries must not rebuild a healthy replacement listener")
+        XCTAssertEqual(states.last, true)
+    }
+
     func testMeasuredSpeakingPaceUsesWeightedRawWordsAndActualTime() throws {
         func entry(words: Int, finalWords: Int, ms: Int?, processing: Int = 0) -> TranscriptionHistoryEntry {
             .init(rawText: String(repeating: "word ", count: words), processedText: String(repeating: "word ", count: finalWords), appName: "Test", windowTitle: "", wasAIProcessed: true, aiProcessingDurationMilliseconds: processing, recordingDurationMilliseconds: ms)

@@ -574,9 +574,15 @@ struct SettingsView: View {
                                         Text("Active")
                                             .font(.caption.weight(.semibold))
                                             .foregroundStyle(self.settingsSecondaryText)
+                                        Button {
+                                            NotificationCenter.default.post(name: Notification.Name("voca.restartHotkeyListener"), object: nil)
+                                        } label: { Image(systemName: "arrow.clockwise") }
+                                            .buttonStyle(.borderless)
+                                            .help("Restart keyboard listener")
+                                            .accessibilityLabel("Restart keyboard listener")
                                     }
                                 } else {
-                                    Text("Initializing…")
+                                    Text("Listener unavailable")
                                         .font(.caption.weight(.semibold))
                                         .foregroundStyle(self.settingsSecondaryText)
                                 }
@@ -596,12 +602,12 @@ struct SettingsView: View {
                                     }
                                 } else if !self.hotkeyManagerInitialized {
                                     HStack(spacing: 8) {
-                                        ProgressView()
-                                            .controlSize(.small)
-                                            .fixedSize()
-                                        Text("Hotkey initializing…")
+                                        Text("macOS has not enabled the keyboard listener. Check Accessibility and Input Monitoring for this VOCA build.")
                                             .font(.caption)
                                             .foregroundStyle(self.settingsSecondaryText)
+                                        Button("Restart listener") {
+                                            NotificationCenter.default.post(name: Notification.Name("voca.restartHotkeyListener"), object: nil)
+                                        }.buttonStyle(.borderless)
                                     }
                                 }
 
