@@ -1833,6 +1833,9 @@ extension DictationE2ETests {
     func testDictationProviderRouteReturnsEmptyRouteForUnverifiedPrivateAI() {
         self.withPromptAndProviderSettingsRestored {
             let settings = SettingsStore.shared
+            let modelFingerprints = settings.verifiedPrivateAIModelFingerprints
+            defer { settings.verifiedPrivateAIModelFingerprints = modelFingerprints }
+            settings.verifiedPrivateAIModelFingerprints = [:]
             settings.verifiedProviderFingerprints = [:]
 
             let route = DictationProviderRoute.privateAIRoute(settings: settings)
