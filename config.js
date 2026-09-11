@@ -8,7 +8,7 @@ export const siteConfig = {
   sourceUrl: `${release}/VOCA-source.zip`,
   releaseUrl: 'https://github.com/InstinctEx/VOCA/releases/tag/beta-2026-09-12',
   repositoryUrl: 'https://github.com/InstinctEx/VOCA',
-  donationUrl: '', // Optional Ko-fi page; downloads never depend on donations.
+  donationUrl: 'https://ko-fi.com/instinctex', // Optional Ko-fi page; downloads never depend on donations.
   walkthroughVideoUrl: '',
   supportEmail: '',
 };

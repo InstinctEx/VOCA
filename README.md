@@ -7,7 +7,7 @@ Native macOS dictation for people whose best sentence occasionally starts with �
 [Source](https://github.com/InstinctEx/VOCA) · [Report a bug](https://github.com/InstinctEx/VOCA/issues) · [Build it yourself](#install-or-build) · [Installation guide](docs/BETA-INSTALL.md)
 
 > **Free public beta · Apple Silicon · macOS 15+**
-> [Download the free beta](https://github.com/InstinctEx/VOCA/releases/tag/beta-2026-09-12), or build from source. All local features are included, without an account or activation key. The app is **not Apple-notarized**; macOS may require manual installation approval. Optional cloud API usage costs extra through your provider. Donations are optional; no donation page is configured yet.
+> [Download the free beta](https://github.com/InstinctEx/VOCA/releases/tag/beta-2026-09-12), or build from source. All local features are included, without an account or activation key. The app is **not Apple-notarized**; macOS may require manual installation approval. Optional cloud API usage costs extra through your provider. [Support VOCA on Ko-fi](https://ko-fi.com/instinctex) if it helps you—donations are entirely optional.
 
 VOCA is a GPLv3 fork of [FluidVoice](https://github.com/altic-dev/Fluid-oss). We're building on that foundation openly, with our own interface and writing workflow. The keyboard may get a holiday. The attribution stays.
 
