@@ -346,8 +346,8 @@ extension PrivateAIIntegrationProviding {
 }
 
 enum PrivateAIProviderRegistry {
-    nonisolated(unsafe) static var feature: any PrivateAIProviderFeatureProviding = UnavailablePrivateAIProviderFeature()
-    nonisolated(unsafe) static var integration: any PrivateAIIntegrationProviding = UnavailablePrivateAIIntegrationProvider()
+    nonisolated(unsafe) static var feature: any PrivateAIProviderFeatureProviding = VocaPolishFeature()
+    nonisolated(unsafe) static var integration: any PrivateAIIntegrationProviding = VocaPolishProvider()
 }
 
 private enum PrivateAIProviderBootstrap {
@@ -374,6 +374,9 @@ enum PrivateAIProviderFeature {
     }
 
     nonisolated static func verificationFingerprint(for modelID: String) -> String {
+        if modelID == VocaPolishFiles.modelID {
+            return "voca-polish|\(modelID)|\(VocaPolishFiles.revision)|mlx:0.31.3"
+        }
         let backendPreference = UserDefaults.standard.string(forKey: SettingsStore.privateAIBackendPreferenceDefaultsKey)?
             .trimmingCharacters(in: .whitespacesAndNewlines)
             .lowercased()

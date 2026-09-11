@@ -2266,7 +2266,7 @@ extension DictationE2ETests {
 
             XCTAssertEqual(
                 PrivateAIIntegrationService.isLocalRuntimeConfigured,
-                PrivateFeatures.privateAIProvider
+                PrivateFeatures.privateAIProvider && VocaPolishFiles.installed()
             )
             XCTAssertFalse(PrivateAIIntegrationService.shouldHandleDictation(model: "gpt-4.1"))
             XCTAssertEqual(
@@ -2301,7 +2301,7 @@ extension DictationE2ETests {
 
             XCTAssertEqual(
                 PrivateAIIntegrationService.isLocalRuntimeConfigured,
-                PrivateFeatures.privateAIProvider
+                PrivateFeatures.privateAIProvider && VocaPolishFiles.installed()
             )
             XCTAssertFalse(DictationAIPostProcessingGate.isConfigured(for: .primary, appBundleID: nil))
         }

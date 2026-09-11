@@ -65,3 +65,7 @@ Validation: 360 distinct selected regression tests passed. Builds, packaging, de
 - Restored and redesigned the floating Accessibility app-drag helper. It stays open during transient System Settings dialogs.
 - Made detailed diagnostics explicitly opt-in; redacted common credential formats. Corrected Apple Speech privacy copy to reflect possible Apple service processing.
 - Added release-signing configuration, read-only release gates, a reproducible selected regression script, a private-source repository layout, and truthful website feature/benchmark copy. Public sales remain disabled until release prerequisites are met.
+
+## VOCA Polish — Qwen 4B
+
+Built-in Apple Silicon enhancement using Qwen3-4B-Instruct-2507 (4-bit) and MLX Swift. Pinned, SHA-256-verified downloads support pause/resume and deletion. No API key or companion server is required. Writing styles and personal instructions feed the local editor. Incomplete or numerically altered output is rejected for original-word recovery. Model weights unload on memory pressure or after an idle interval. A local sample editor reports measured processing time.

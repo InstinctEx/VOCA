@@ -2389,7 +2389,7 @@ struct ContentView: View {
 
         let isDictationCall = overrideSystemPrompt != nil || dictationSlot != nil
         let isPrivateAIProvider = route.usesPrivateAI
-        let usePrivateAIProvider = overrideSystemPrompt == nil &&
+        let usePrivateAIProvider = (overrideSystemPrompt == nil || currentSelectedProviderID == "voca-polish") &&
             isDictationCall &&
             (isPrivateAIProvider || PrivateAIIntegrationService.shouldHandleDictation(model: derivedSelectedModel))
 
@@ -2413,7 +2413,8 @@ struct ContentView: View {
                     localModelPath: PrivateAIIntegrationService.configuredLocalModelPath,
                     usesStablePromptPrefixKVCache: SettingsStore.shared.privateAIPrefixKVCacheEnabled,
                     usesFluid1Boost: SettingsStore.shared.privateAIBoostEnabled,
-                    contextTokenLimit: SettingsStore.shared.privateAIContextTokenLimit
+                    contextTokenLimit: SettingsStore.shared.privateAIContextTokenLimit,
+                    systemPrompt: overrideSystemPrompt ?? self.buildSystemPrompt(appInfo: appInfo, dictationSlot: dictationSlot)
                 ),
                 context: PrivateAIIntegrationService.AppContext(
                     appName: appInfo.name,

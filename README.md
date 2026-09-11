@@ -28,6 +28,12 @@ Credit is not a UI bug. We keep the original copyright notices. The app can have
 
 This combination is our product position, not proof that every competitor lacks these features. Other apps also support local models and custom workflows. We have not run a controlled competitor accuracy or latency comparison. We are selling a thoughtful workflow, not an imaginary gold medal.
 
+## VOCA Polish: the server is your Mac
+
+Built-in Qwen3-4B-Instruct-2507, 4-bit, powered by MLX Swift. A 2.28 GB verified download gives Apple Silicon Macs local text enhancement without installing Ollama, opening a terminal, or finding an API key in a drawer. Your writing styles work with it; the model gets no tools or network access for inference.
+
+Pause/resume downloads, memory release, a local sample editor with timing, and original-word recovery are included. 16 GB memory is recommended alongside speech recognition. See [setup and exact limits](VocaSource/docs/VOCA-POLISH.md). No, a model running locally does not magically become incapable of making mistakes.
+
 ## Writing styles
 
 Natural · Concise · Email · Notes · Friendly · Professional · Straight to it · Technical · Journal · Social post · Meeting recap · Formal.
@@ -50,7 +56,7 @@ It applies to toggle-mode dictation, not command/edit modes or training. Speakin
 | **12 templates** | Implemented prompt presets, alongside custom and personal styles. |
 | **3 overlay positions** | MacBook notch, screen edge, and near the typing cursor. AX support determines caret placement. |
 | **8s / 30s** | Dictation cleanup warning / original-words fallback thresholds, not advertised latency targets. |
-| **400 selected regression tests** | Current local regression target, including pause behavior, late-result suppression, personal-style sample privacy, diagnostic opt-in, and existing dictation/provider/shortcut coverage. See the dated review for the completed run. |
+| **407 selected tests** | Current local regression target, including pause behavior, late-result suppression, personal-style sample privacy, diagnostic opt-in, and existing dictation/provider/shortcut coverage. See the dated review for the completed run. |
 | **Live insertion + undo** | TextEdit: inserted at the cursor, appended more text, undid only the insertion. Other apps need their own checks. |
 
 There are no invented “99.9% accuracy” claims here. The spreadsheet was devastated.
@@ -92,6 +98,7 @@ Compiled apps, retired prototypes, downloaded models, user recordings, local dat
 Use Xcode with the macOS 26 SDK. The app deployment target is macOS 15; native Liquid Glass is conditional on macOS 26. The current live checks were on Apple Silicon/macOS 26.4.1. Intel and macOS 15 require release testing.
 
 ```sh
+xcodebuild -downloadComponent MetalToolchain
 cd VocaSource
 ./build-voca.sh
 ./scripts/test-voca.sh

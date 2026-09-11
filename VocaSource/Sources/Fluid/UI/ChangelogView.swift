@@ -14,6 +14,7 @@ struct ChangelogView: View {
                         Text("September 2026").font(.callout).foregroundStyle(self.theme.palette.secondaryText)
                     }
                     Divider()
+                    update("Polish, without the cloud", "VOCA Polish runs Qwen 4B directly on Apple Silicon. Download once, use your writing styles offline, and see real timings in the local sample editor. Pause and resume downloads, or free model memory whenever you need it.", "sparkles")
                     update("Sounds like you", "Twelve writing templates and a personal style made from examples you choose. The examples are analyzed locally; review the suggested habits before saving.", "person.text.rectangle")
                     update("Room to think", "Optional automatic finish waits through a pause, then shows a three-second countdown. Speak again to reset it, or tap the countdown to keep listening. It never submits a message.", "pause.circle")
                     update("No endless refining", "Slow cleanup gets an eight-second warning and an original-words option. A thirty-second limit keeps a slow provider from holding your words indefinitely.", "clock")

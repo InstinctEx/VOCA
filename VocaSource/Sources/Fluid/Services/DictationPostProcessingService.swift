@@ -217,7 +217,7 @@ final class DictationPostProcessingService {
             source: "DictationPostProcessingService"
         )
 
-        let allowsPrivateAIRoute = DictationProviderRoute.allowsPrivateAIRoute(
+        let allowsPrivateAIRoute = (resolved.providerID == "voca-polish" && settings.dictationPromptSelection(for: dictationSlot) != .off) || DictationProviderRoute.allowsPrivateAIRoute(
             selection: settings.dictationPromptSelection(for: dictationSlot),
             selectedProviderID: settings.selectedProviderID
         )
@@ -239,7 +239,8 @@ final class DictationPostProcessingService {
                     localModelPath: PrivateAIIntegrationService.configuredLocalModelPath,
                     usesStablePromptPrefixKVCache: settings.privateAIPrefixKVCacheEnabled,
                     usesFluid1Boost: settings.privateAIBoostEnabled,
-                    contextTokenLimit: settings.privateAIContextTokenLimit
+                    contextTokenLimit: settings.privateAIContextTokenLimit,
+                    systemPrompt: settings.effectiveDictationSystemPrompt(for: dictationSlot, appBundleID: nil)
                 ),
                 context: PrivateAIIntegrationService.AppContext(
                     appName: "",

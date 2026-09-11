@@ -504,136 +504,8 @@ extension AIEnhancementSettingsView {
     }
 
     private var privateAIRuntimeSection: some View {
-        let model = self.selectedPrivateAIModel
-        let status = self.privateAIModelStatus(for: model)
-        let isInstalled = PrivateAIIntegrationService.isModelInstalled(model)
-        let isDownloading = self.privateAILoadState.isDownloading(model.id)
-        let downloadProgress = self.privateAILoadState.downloadProgress(for: model.id)
-        let isLoading = self.privateAILoadState.isLoading(model.id)
-        let isLoaded = self.privateAILoadState.isLoaded(model.id)
-        let hasLoadFailure = self.privateAILoadState.failureMessage(for: model.id) != nil
-        let isVerified = self.isPrivateAIModelVerified(model)
-        let isTesting = self.viewModel.isTestingConnection && self.viewModel.selectedProviderID == PrivateAIProviderFeature.shared.providerID
-        let isBusy = isDownloading || isLoading || isTesting
-        let hasUpdate = isInstalled && self.privateAIModelUpdateStatusByID[model.id]?.state == .updateAvailable
-        let canVerify = isInstalled && (!isVerified || hasLoadFailure) && !self.privateAISelectedModelID.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-
-        return VStack(alignment: .leading, spacing: 10) {
-            HStack(spacing: 8) {
-                Text("Model")
-                    .font(.system(size: 12, weight: .medium))
-                    .foregroundStyle(self.theme.palette.secondaryText)
-                    .frame(width: 50, alignment: .leading)
-
-                SearchableModelPicker(
-                    models: PrivateAIModelRegistry.modelIDs(),
-                    selectedModel: self.privateAIModelBinding,
-                    selectionEnabled: !isBusy,
-                    displayName: self.privateAIModelDisplayName,
-                    controlWidth: 180,
-                    controlHeight: AISettingsLayout.providerRowControlHeight
-                )
-
-                self.companionIconButton(systemName: "folder", help: "Open downloaded model folder") {
-                    self.revealPrivateAIModelFolder()
-                }
-            }
-
-            self.privateAIBackendRow(isBusy: isBusy)
-
-            if isDownloading || isLoading || isLoaded || hasLoadFailure || isVerified || !isInstalled {
-                self.privateAIModelStatusRow(
-                    status: status,
-                    progress: downloadProgress,
-                    isDownloading: isDownloading,
-                    showsLoadingIndicator: isLoading
-                )
-            }
-
-            self.privateAIPrefixCacheRow(isBusy: isBusy)
-            if self.privateAIShowsBoostRow {
-                self.privateAIBoostRow(isBusy: isBusy)
-            }
-
-            if self.viewModel.connectionStatus(for: PrivateAIProviderFeature.shared.providerID) == .failed,
-               !self.viewModel.connectionErrorMessage.isEmpty
-            {
-                HStack(spacing: 6) {
-                    Image(systemName: "exclamationmark.triangle.fill")
-                        .font(.caption)
-                    Text(self.viewModel.connectionErrorMessage)
-                        .font(.caption)
-                }
-                .foregroundStyle(.red)
-                .padding(10)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .background(
-                    RoundedRectangle(cornerRadius: 8, style: .continuous)
-                        .fill(Color.red.opacity(0.1))
-                )
-            }
-
-            if !isInstalled {
-                if model.canDownload {
-                    Button(action: { self.downloadPrivateAIModel(model) }) {
-                        HStack(spacing: 6) {
-                            if isDownloading {
-                                ProgressView()
-                                    .controlSize(.mini)
-                                    .fixedSize()
-                            }
-                            Text(
-                                isDownloading
-                                    ? Self.downloadButtonText(progress: downloadProgress)
-                                    : "Download \(self.privateAIBackendShortName) & Verify"
-                            )
-                            .font(.system(size: 11, weight: .semibold))
-                        }
-                    }
-                    .fluidButton(.accent, size: .small)
-                    .disabled(isBusy)
-                } else {
-                    HStack(spacing: 6) {
-                        Image(systemName: "info.circle")
-                            .font(.caption)
-                        Text("Install the selected model to enable verification")
-                            .font(.caption)
-                    }
-                    .foregroundStyle(self.theme.palette.secondaryText)
-                }
-            } else if hasUpdate {
-                Button(action: { self.updatePrivateAIModel(model) }) {
-                    HStack(spacing: 6) {
-                        if isDownloading {
-                            ProgressView()
-                                .controlSize(.mini)
-                                .fixedSize()
-                        }
-                        Text(
-                            isDownloading
-                                ? Self.downloadButtonText(progress: downloadProgress)
-                                : "Update & Verify"
-                        )
-                        .font(.system(size: 11, weight: .semibold))
-                    }
-                }
-                .fluidButton(.accent, size: .small)
-                .disabled(isBusy)
-            } else if canVerify {
-                Button(action: { self.verifyPrivateAIConnection(model) }) {
-                    HStack(spacing: 6) {
-                        if isTesting {
-                            ProgressView()
-                                .controlSize(.mini)
-                                .fixedSize()
-                        }
-                        Text(isTesting ? "Loading..." : "Verify")
-                            .font(.system(size: 11, weight: .semibold))
-                    }
-                }
-                .fluidButton(.accent, size: .small)
-                .disabled(isBusy)
-            }
+        VocaPolishView {
+            await self.viewModel.verifyPrivateAIProvider(model: VocaPolishFeature.model)
         }
     }
 
@@ -1967,113 +1839,19 @@ extension AIEnhancementSettingsView {
         isBusy: Bool,
         isVerified: Bool
     ) -> some View {
-        let canDelete = isInstalled && PrivateAIIntegrationService.canRemoveInstalledModel(model)
-
-        return VStack(alignment: .leading, spacing: 14) {
-            HStack(spacing: 8) {
-                Image(systemName: "pencil.circle.fill")
-                    .font(.system(size: 14))
-                    .foregroundStyle(self.theme.palette.accent)
-                Text("Edit Provider")
-                    .font(.system(size: 14, weight: .semibold))
-                Spacer()
-            }
-
-            VStack(alignment: .leading, spacing: 10) {
-                HStack(alignment: .center, spacing: 12) {
-                    self.privateAISettingLabel("Model", systemImage: "cube.box")
-
-                    SearchableModelPicker(
-                        models: PrivateAIModelRegistry.modelIDs(),
-                        selectedModel: self.privateAIModelBinding,
-                        selectionEnabled: !isBusy,
-                        displayName: self.privateAIModelDisplayName,
-                        controlWidth: 260,
-                        controlHeight: AISettingsLayout.providerRowControlHeight
-                    )
-
-                    Spacer(minLength: 0)
-                }
-
-                HStack(alignment: .center, spacing: 12) {
-                    self.privateAISettingLabel("Backend", systemImage: "cpu")
-
-                    self.privateAIBackendPicker(isBusy: isBusy)
-                        .frame(width: 210)
-
-                    Text(self.settings.privateAIBackendPreference.detail)
-                        .font(.caption2)
-                        .foregroundStyle(self.theme.palette.secondaryText)
-                        .lineLimit(2)
-
-                    Spacer(minLength: 0)
-                }
-
-                HStack(alignment: .center, spacing: 12) {
-                    self.privateAISettingLabel("Dictation window", systemImage: "memorychip")
-
-                    self.privateAIContextControl(isBusy: isBusy)
-
-                    HStack(alignment: .top, spacing: 5) {
-                        Image(systemName: "info.circle.fill")
-                            .font(.system(size: 10, weight: .semibold))
-                            .padding(.top, 1)
-                        Text("\(self.privateAIContextCueText). Higher values help long transcripts but use more RAM.")
-                            .font(.caption2)
-                            .lineLimit(2)
-                    }
-                    .foregroundStyle(self.theme.palette.secondaryText)
-
-                    Spacer(minLength: 0)
-                }
-
-                self.privateAIPrefixCacheRow(isBusy: isBusy)
-                if self.privateAIShowsBoostRow {
-                    self.privateAIBoostRow(isBusy: isBusy)
-                }
-            }
-
-            HStack(spacing: 8) {
+        VStack(alignment: .leading, spacing: 14) {
+            self.privateAIRuntimeSection
+            HStack {
                 if isVerified {
-                    Button {
+                    Button("Reset verification") {
                         self.resetPrivateAIVerification(for: model)
                         self.viewModel.clearEditProviderDraft()
-                    } label: {
-                        HStack(spacing: 5) {
-                            Image(systemName: "arrow.counterclockwise")
-                            Text("Reset Verification")
-                        }
-                        .font(.caption)
                     }
-                    .fluidCompactButton(foreground: .red, borderColor: .red.opacity(0.6))
-                }
-
-                if canDelete {
-                    Button(role: .destructive) {
-                        self.deletePrivateAIModel(model)
-                        self.viewModel.clearEditProviderDraft()
-                    } label: {
-                        HStack(spacing: 6) {
-                            Image(systemName: "trash")
-                            Text("Delete Model")
-                        }
-                        .font(.caption)
-                    }
-                    .fluidCompactButton(foreground: .red, borderColor: .red.opacity(0.6))
                     .disabled(isBusy)
                 }
-
-                Spacer(minLength: 0)
-
-                Button {
-                    self.viewModel.clearEditProviderDraft()
-                } label: {
-                    HStack(spacing: 6) {
-                        Image(systemName: "checkmark")
-                        Text("Done")
-                    }
-                }
-                .fluidButton(.glass, size: .compact)
+                Spacer()
+                Button("Done") { self.viewModel.clearEditProviderDraft() }
+                    .fluidButton(.glass, size: .compact)
             }
         }
     }

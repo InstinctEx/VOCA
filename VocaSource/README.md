@@ -21,7 +21,7 @@ See **VOCA-WORKFLOW-REVIEW.md** for the current implementation and verification 
 
 Run `./build-voca.sh` with Xcode installed. It builds the public target and packages `../VOCA.app`. A local ad-hoc signature is used unless `SIGNING_IDENTITY` names an installed signing identity. Ad-hoc rebuilds may require macOS permission approval again. The app needs Microphone and Accessibility access; API providers need your own credentials.
 
-400 selected regression tests passed across shortcuts, navigation, native editing, providers, dictionaries, history/routing, audio conversion, and privacy boundaries. This is not a claim that every downloadable model or paid API has been live-tested.
+407 selected tests passed across shortcuts, navigation, native editing, providers, dictionaries, history/routing, audio conversion, and privacy boundaries. This is not a claim that every downloadable model or paid API has been live-tested.
 
 The private Fluid Intelligence runtime is absent from the upstream public repository. Its conditional integration is retained. VOCA updates require an independent release channel; upstream updates cannot overwrite this fork.
 
@@ -34,3 +34,7 @@ See **VOCA-REVIEW.md** for the September 2026 application review, release blocke
 ## Personal voice preview
 
 The new Sounds like me card creates a reviewed personal prompt from writing samples analyzed locally. Twelve templates are available. Optional Finish after a pause appears in Dictation settings. Slow dictation cleanup warns at eight seconds and falls back at thirty seconds; Quick Controls offers the original words immediately. Detailed diagnostics are now off by default. See [VOCA-PERSONAL-REVIEW.md](VOCA-PERSONAL-REVIEW.md) and the repository-level [release checklist](../docs/RELEASE-READINESS.md).
+
+## Built-in local enhancement
+
+VOCA Polish runs Qwen3 4B Instruct directly on Apple Silicon. See [setup, privacy, limits and test instructions](docs/VOCA-POLISH.md).

@@ -22,6 +22,7 @@ actor PrivateAIIntegrationService {
         let usesStablePromptPrefixKVCache: Bool
         let usesFluid1Boost: Bool
         let contextTokenLimit: Int
+        var systemPrompt: String? = nil
     }
 
     struct AppContext: Sendable, Equatable {

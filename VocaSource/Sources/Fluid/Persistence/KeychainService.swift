@@ -204,6 +204,12 @@ final class KeychainService {
             return try testingBackend.load()
         }
 
+        // Legacy macOS keychains can still block on an ACL prompt even with
+        // kSecUseAuthenticationUIFail after an ad-hoc rebuild. Read only after
+        // the user explicitly chooses Unlock; cached reads remain immediate.
+        if !allowAuthentication, case .unloaded = self.cachedState() {
+            throw KeychainServiceError.unhandled(errSecInteractionNotAllowed)
+        }
         var query = self.aggregatedQuery()
         query[kSecUseAuthenticationUI as String] = allowAuthentication ? kSecUseAuthenticationUIAllow : kSecUseAuthenticationUIFail
         query[kSecReturnData as String] = kCFBooleanTrue
